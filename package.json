@@ -1,0 +1,37 @@
+{
+  "name": "crypt",
+  "version": "0.0.1",
+  "description": "secure file storage and hosting",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TetuSecurity/Crypt.git"
+  },
+  "keywords": [
+    "secure",
+    "crypto",
+    "tetu",
+    "storage",
+    "nodejs",
+    "encrypted"
+  ],
+  "author": "ayost",
+  "license": "GPL-3.0",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/TetuSecurity/Crypt/issues"
+  },
+  "homepage": "https://github.com/TetuSecurity/Crypt#readme",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.13.4"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "mocha": "^2.4.5"
+  }
+}

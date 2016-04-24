@@ -1,0 +1,33 @@
+{
+  "name": "crypt",
+  "description": "secure file storage and hosting",
+  "main": "client/index.js",
+  "authors": [
+    "ayost"
+  ],
+  "license": "GPL-3.0",
+  "keywords": [
+    "secure",
+    "crypto",
+    "tetu",
+    "storage",
+    "nodejs",
+    "encrypted"
+  ],
+  "homepage": "https://github.com/TetuSecurity/Crypt",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "client/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.3",
+    "angular": "^1.5.5",
+    "bootstrap": "^3.3.6"
+  }
+}
