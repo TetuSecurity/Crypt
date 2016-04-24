@@ -2,7 +2,7 @@
   "name": "crypt",
   "version": "0.0.1",
   "description": "secure file storage and hosting",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
     "test": "mocha"
   },

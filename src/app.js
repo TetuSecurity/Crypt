@@ -1,23 +1,25 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const crypto = require('crypto');
-const fs = require('fs');
+
 
 try{
-  fs.accessSync('./config.json');
+  fs.accessSync(path.join(__dirname,'./config.json'));
   global.config = require('./config.json');
 }
 catch (err){
   global.config = {};
-  fs.writeFileSync('./config.json', JSON.stringify(global.config));
+  fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(global.config));
   console.log('Initializing config file!');
 }
 
 if(!global.config.CookieSecret){
   var sec = crypto.randomBytes(32).toString('hex');
   global.config.CookieSecret = sec;
-  fs.writeFileSync('./config.json', JSON.stringify(global.config, null, '\t'));
+  fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(global.config, null, '\t'));
 }
 
 const app = express();

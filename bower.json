@@ -1,7 +1,7 @@
 {
   "name": "crypt",
   "description": "secure file storage and hosting",
-  "main": "client/index.js",
+  "main": "src/client/index.js",
   "authors": [
     "ayost"
   ],
