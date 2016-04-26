@@ -2,6 +2,7 @@ var router = require('express').Router();
 var crypto = require('crypto');
 var uuid = require('node-uuid');
 var db = require('../middleware/db');
+var email = require('../middleware/email');
 
 router.get('/', function(req, res){
   if(res.locals.user){
@@ -23,19 +24,54 @@ router.post('/signup', function(req, res){
   passhash.update(salt);
   var hpass = passhash.digest('hex');
   var confirmation = uuid.v4();
-  var iq = 'Insert into `users` (`Email`, `Salt`, `PasswordHash`,`Confirm`, `Active`) VALUES (?, ?, ?, ?, 0);';
-  db.query(iq, [body.Email, salt, hpass, confirmation], function(err){
+  db.getConnection(function(err, conn){
     if(err){
-      if(err.code == 'ER_DUP_KEY'){
-        return res.send({Success: false, Error:'User with that email already exists!'});
-      }
-      else{
-        console.log(err);
+      console.log('Error connecting to database', err);
+      return res.send({Success: false, Error: 'Internal Server Error'});
+    }
+    conn.beginTransaction(function(err){
+      if(err){
+        console.log('Error beginning signup transaction', err);
         return res.send({Success: false, Error: 'Internal Server Error'});
       }
-    }
-    //Send email
-    return res.send({Success: true});
+      var iq = 'Insert into `users` (`Email`, `Salt`, `PasswordHash`,`Confirm`, `Active`) VALUES (?, ?, ?, ?, 0);';
+      conn.query(iq, [body.Email, salt, hpass, confirmation], function(err){
+        if(err){
+          if(err.code == 'ER_DUP_KEY'){
+            conn.rollback(function(){
+              return res.send({Success: false, Error:'User with that email already exists!'});
+            });
+          }
+          else{
+            conn.rollback(function(){
+              console.log(err);
+              return res.send({Success: false, Error: 'Internal Server Error'});
+            });
+          }
+        }
+        else{
+          email.confirm_email(body.Email, req.protocol+'://'+req.hostname+'/api/auth/confirm/'+confirmation, function(err){
+            if(err){
+                conn.rollback(function(){
+                console.log('Error sending confirmation email', err);
+                return res.send({Success: false, Error: 'Internal Server Error'});
+              });
+            }
+            else{
+              conn.commit(function(err){
+                if(err) {
+                  conn.rollback(function(){
+                    console.log(err);
+                    return res.send({Success: false, Error: 'Internal Server Error'});
+                  });
+                }
+                return res.send({Success: true});
+              });
+            }
+          });
+        }
+      });
+    });
   });
 });
 
@@ -49,7 +85,7 @@ router.get('/confirm/:confirmkey', function(req, res){
     if(result.changedRows <1){
       return res.send({Success: false, Error: 'Invalid Confirmation Key'});
     }
-    return res.send({Success: true});
+    return res.redirect('/');
   });
 });
 
