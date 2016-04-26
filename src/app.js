@@ -5,7 +5,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-
 try{
   fs.accessSync(path.join(__dirname,'./config.json'));
   global.config = require('./config.json');
@@ -31,11 +30,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(global.config.Cookie.Secret));
 
+/*------- Angular client on Root ------- */
+app.set('view engine','html');
+app.use(express.static(path.join(__dirname, 'client')));
 
+/*-------- API --------*/
 app.use('/api', require('./routes/api'));
 
 app.all('*', function(req, res){
-  return res.send('<h1>Hello World</h1>');
+  res.status=404;
+  return res.send('<h1>404: Not Found</h1>');
 });
 
 const port = global.config.Port || 3000;
