@@ -16,22 +16,27 @@ catch (err){
   console.log('Initializing config file!');
 }
 
-if(!global.config.CookieSecret){
-  var sec = crypto.randomBytes(32).toString('hex');
-  global.config.CookieSecret = sec;
+if(!global.config.Cookie){
+  global.config.Cookie= {};
+}
+if(!global.config.Cookie.Secret || !global.config.Cookie.Name){
+  var sec = global.config.Cookie.Secret || crypto.randomBytes(32).toString('hex');
+  var cookieName = global.config.Cookie.Name||'cr_t2s';
+  global.config.Cookie = {Secret: sec, Name:cookieName};
   fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(global.config, null, '\t'));
 }
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser(global.config.CookieSecret));
+app.use(cookieParser(global.config.Cookie.Secret));
 
+
+app.use('/api', require('./routes/api'));
 
 app.all('*', function(req, res){
   return res.send('<h1>Hello World</h1>');
 });
-
 
 const port = global.config.Port || 3000;
 app.listen(port);
