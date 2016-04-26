@@ -27,4 +27,13 @@ mysql.query = function(){
 	});
 };
 
+mysql.getConnection = function(callback){
+  pool.getConnection(function(err, connection) {
+  	if(err) {
+			return callback(err);
+		}
+    return callback(null, connection);
+  });
+};
+
 module.exports = mysql;
