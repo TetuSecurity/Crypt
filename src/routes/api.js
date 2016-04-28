@@ -1,5 +1,5 @@
-var router = require('express').Router();
-var db = require('../middleware/db');
+const router = require('express').Router();
+const db = require('../middleware/db');
 
 router.use(function(req, res, next){
   if(!req.signedCookies || !req.signedCookies[global.config.Cookie.Name]){
