@@ -27,7 +27,7 @@ if(!global.config.Cookie.Secret || !global.config.Cookie.Name){
 }
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit:'100mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(global.config.Cookie.Secret));
 
