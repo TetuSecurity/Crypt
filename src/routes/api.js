@@ -29,5 +29,6 @@ router.use(function(req, res, next){
 });
 
 router.use('/auth', require('./auth'));
+router.use('/files', require('./files'));
 
 module.exports=router;
