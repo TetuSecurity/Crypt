@@ -4,6 +4,14 @@ const path = require('path');
 const fs = require('fs');
 const db = require('../middleware/db');
 
+var store;
+
+if(global.config.FileStore && global.config.FileStore.Type=='SES'){
+  store = require('../middleware/sesfilestore');
+}
+else{
+    store = require('../middleware/localfilestore');
+}
 
 /**
 * Saves Metadata of a file and returns a new endpoint for content upload
@@ -27,8 +35,8 @@ router.put('/upload/', function(req, res){
 router.put('/upload/:fileid', function(req, res){
   var body = req.body;
   var fileid = req.params.fileid;
-  if(!body || !body.Data || (!('Place' in body)) || (!('Total' in body)) ){
-    return res.send({Success: false, Error: 'Missing information about file'});
+  if(!body || !body.Data){
+    return res.send({Success: false, Error: 'Missing File Data!'});
   }
   // get path and storage type from config
   // default to project root/files
@@ -40,17 +48,11 @@ router.put('/upload/:fileid', function(req, res){
     if(results.length<1){
       return res.send({Success: false, Error: 'No such file ID'});
     }
-    var storepath = path.join(__dirname,'../../files', results[0].Filename);
-    fs.appendFile(storepath, new Buffer(body.Data, 'hex'), function(err){
+    store(results[0].Filename, results[0].Size, body.Data, function(err, currsize){
       if(err){
         console.log(err);
-        return res.send({Success: false, Nack:body.Place, Error:err, Done:false});
       }
-      var done = (body.Place===body.Total-1);
-      if(done){
-        console.log('Upload Complete for', results[0].Filename);
-      }
-      return res.send({Success: true, Ack:body.Place, Done:done});
+      return res.send({Success: !(!!err), LastByte:currsize, Error: err});
     });
   });
 });
