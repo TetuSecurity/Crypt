@@ -16,7 +16,7 @@ else{
 /**
 * Saves Metadata of a file and returns a new endpoint for content upload
 **/
-router.put('/upload/', function(req, res){
+router.put('/upload/', global.jsonParser, function(req, res){
   var body = req.body;
   if(!body || !body.Filename || !body.Size){
     return res.send({Success: false, Error: 'No filename!'});

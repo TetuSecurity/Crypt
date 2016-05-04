@@ -4,6 +4,8 @@ const uuid = require('node-uuid');
 const db = require('../middleware/db');
 const email = require('../middleware/email');
 
+router.use(global.jsonParser);
+
 router.get('/', function(req, res){
   if(res.locals.user){
     return res.send({Success: true, User: res.locals.user});

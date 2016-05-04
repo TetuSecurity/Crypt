@@ -32,8 +32,8 @@ if(!global.config.StorageKey){
 }
 
 const app = express();
-app.use(bodyParser.json({limit:'100mb'}));
-app.use(bodyParser.urlencoded({ extended: true }));
+global.jsonParser = bodyParser.json({limit:'100mb'});
+global.urlParser = bodyParser.urlencoded({ extended: true });
 app.use(cookieParser(global.config.Cookie.Secret));
 
 
