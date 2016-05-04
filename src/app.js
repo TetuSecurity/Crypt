@@ -26,6 +26,11 @@ if(!global.config.Cookie.Secret || !global.config.Cookie.Name){
   fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(global.config, null, '\t'));
 }
 
+if(!global.config.StorageKey){
+  global.config.StorageKey = crypto.randomBytes(64).toString('base64');
+  fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(global.config, null, '\t'));
+}
+
 const app = express();
 app.use(bodyParser.json({limit:'100mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
