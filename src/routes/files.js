@@ -10,7 +10,7 @@ if(global.config.FileStore && global.config.FileStore.Type=='S3'){
   store = require('../middleware/s3-filestore');
 }
 else{
-    store = require('../middleware/localfilestore');
+  store = require('../middleware/local-filestore');
 }
 
 /**
