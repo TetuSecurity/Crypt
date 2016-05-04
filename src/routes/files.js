@@ -2,7 +2,10 @@ const router = require('express').Router();
 const uuid = require('node-uuid');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
+const zlib = require('zlib');
 const db = require('../middleware/db');
+
 
 var store;
 
@@ -33,14 +36,8 @@ router.put('/upload/', global.jsonParser, function(req, res){
 });
 
 router.put('/upload/:fileid', function(req, res){
-  var body = req.body;
   var fileid = req.params.fileid;
-  if(!body || !body.Data){
-    return res.send({Success: false, Error: 'Missing File Data!'});
-  }
-  // get path and storage type from config
-  // default to project root/files
-  db.query('Select * from `filemetadata` where `Owner`=? and `FileID`=?;', [res.locals.user.ID, req.params.fileid], function(err, results){
+  db.query('Select * from `filemetadata` where `Owner`=? and `FileID`=?;', [res.locals.user.ID, fileid], function(err, results){
     if(err){
       console.log('Error validating file id', err);
       return res.send({Success: false, Error: 'Internal Server Error'});
@@ -48,11 +45,30 @@ router.put('/upload/:fileid', function(req, res){
     if(results.length<1){
       return res.send({Success: false, Error: 'No such file ID'});
     }
-    store(results[0].Filename, results[0].Size, body.Data, function(err, currsize){
+    const cipher = crypto.createCipher('aes256', new Buffer(global.config.StorageKey, 'base64'));
+    var pl = req.pipe(zlib.createGzip()).pipe(cipher);
+    store.store(fileid, pl, function(err){
       if(err){
-        console.log(err);
+        return res.send({Success: false, Error: err});
       }
-      return res.send({Success: !(!!err), LastByte:currsize, Error: err});
+        return res.send({Success: true});
+    });
+  });
+});
+
+router.get('/:fileid', function(req, res){
+  var fileid = req.params.fileid;
+  db.query('Select * from `filemetadata` where `Owner`=? and `FileID`=?;', [res.locals.user.ID, fileid], function(err, results){
+    if(err){
+      console.log('Error validating file id', err);
+      return res.send({Success: false, Error: 'Internal Server Error'});
+    }
+    if(results.length<1){
+      return res.send({Success: false, Error: 'No such file ID'});
+    }
+    const decipher = crypto.createDecipher('aes256', new Buffer(global.config.StorageKey, 'base64'));
+    store.get(fileid).pipe(decipher).pipe(zlib.createGunzip()).pipe(res).once('close', function(){
+      return res.end();
     });
   });
 });
