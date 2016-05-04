@@ -6,8 +6,8 @@ const db = require('../middleware/db');
 
 var store;
 
-if(global.config.FileStore && global.config.FileStore.Type=='SES'){
-  store = require('../middleware/sesfilestore');
+if(global.config.FileStore && global.config.FileStore.Type=='S3'){
+  store = require('../middleware/s3-filestore');
 }
 else{
     store = require('../middleware/localfilestore');
