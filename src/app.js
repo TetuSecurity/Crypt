@@ -20,7 +20,7 @@ if(!global.config.Cookie){
   global.config.Cookie= {};
 }
 if(!global.config.Cookie.Secret || !global.config.Cookie.Name){
-  var sec = global.config.Cookie.Secret || crypto.randomBytes(32).toString('hex');
+  var sec = global.config.Cookie.Secret || crypto.randomBytes(32).toString('base64');
   var cookieName = global.config.Cookie.Name||'cr_t2s';
   global.config.Cookie = {Secret: sec, Name:cookieName};
   fs.writeFileSync(path.join(__dirname,'./config.json'), JSON.stringify(global.config, null, '\t'));
