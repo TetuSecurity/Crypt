@@ -29,6 +29,16 @@ router.use(function(req, res, next){
 });
 
 router.use('/auth', require('./auth'));
+
+router.use(function(req, res, next){
+  if(!res.locals.user){
+    return res.send({Success: false, Error:'Unauthenticated!'});
+  }
+  else {
+    return next();
+  }
+});
+
 router.use('/files', require('./files'));
 
 module.exports=router;
