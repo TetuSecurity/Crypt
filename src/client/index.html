@@ -1,29 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="Crypt">
+<html lang="en">
   <head>
+    <title>Crypt</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Crypt</title>
     <!-- build:css css/styles.min.css -->
-    <link rel="stylesheet" href="styles/css/crypt.min.css">
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <style media="screen">
+      .clickable{
+        cursor:pointer;
+      }
+    </style>
     <!-- endbuild -->
   </head>
-  <body ng-controller="PageCtrl as page" ng-cloak>
-    <h1>Welcome to Crypt!</h1>
-
+  <body>
+    <crypt-app>Loading ...</crypt-app>
     <!-- build:js js/lib.min.js -->
-    <script src="lib/jquery/dist/jquery.min.js"></script>
-    <script src="lib/angular/angular.min.js"></script>
-    <script src="lib/angular-animate/angular-animate.min.js"></script>
-    <script src="lib/angular-route/angular-route.min.js"></script>
-    <script src="lib/angular-sanitize/angular-sanitize.min.js"></script>
-    <script src="lib/angular-aria/angular-aria.min.js"></script>
-    <script src="lib/angular-messages/angular-messages.min.js"></script>
+    <script src="node_modules/es6-shim/es6-shim.min.js"></script>
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/reflect-metadata/Reflect.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    <script src="systemjs.config.js"></script>
     <!-- endbuild -->
-    <!-- build:app js/app.min.js -->
-    <script src="index.js"></script>
-    <script src="controllers/pagectrl.js"></script>
-    <!-- endbuild -->
+    <script>
+      System.import('app').catch(function(err){ console.error(err);  });
+    </script>
   </body>
 </html>
