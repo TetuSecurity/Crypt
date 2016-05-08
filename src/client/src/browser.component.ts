@@ -1,7 +1,8 @@
-import { Component, Pipe, PipeTransform } from '@angular/core';
+import { Component } from '@angular/core';
 
 export class File{
   Name: string;
+  Parent:Directory;
   LastModified: Date;
   IsDirectory: boolean = false;
   constructor(filename:string, lm?:Date){
@@ -27,6 +28,7 @@ export class BrowserComponent {
     Field:undefined,
     ASC:undefined
   };
+  breadcrumbs:Directory[] = [];
 
   constructor() {
     this.files = [
@@ -66,5 +68,27 @@ export class BrowserComponent {
         }
       }
     });
+  }
+
+  diveIn(folder:Directory){
+    if(!folder.IsDirectory){
+      return;
+    }
+    this.breadcrumbs.push(folder);
+    //fetch files for that location
+  }
+
+  navigateTo(location:Directory){
+    //swim upstream
+    if(!location){
+      this.breadcrumbs = [];
+    }
+    else{
+      let i = this.breadcrumbs.indexOf(location);
+      if(i>-1){
+        this.breadcrumbs.splice(i,1);
+      }
+    }
+    //fetch end location's files
   }
 }
