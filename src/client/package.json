@@ -1,0 +1,53 @@
+{
+  "name": "crypt",
+  "version": "1.0.0",
+  "description": "Secure File Storage Platform",
+  "scripts": {
+    "lint": "tslint ./app/**/*.ts -t verbose",
+    "postinstall": "typings install",
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "typings": "typings",
+    "webdriver:update": "webdriver-manager update"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TetuSecurity/Crypt.git"
+  },
+  "keywords": [
+    "secure",
+    "crypto",
+    "tetu",
+    "storage",
+    "nodejs",
+    "encrypted"
+  ],
+  "author": "ayost",
+  "license": "MIT",
+  "dependencies": {
+    "@angular/common": "2.0.0-rc.1",
+    "@angular/compiler": "2.0.0-rc.1",
+    "@angular/core": "2.0.0-rc.1",
+    "@angular/http": "2.0.0-rc.1",
+    "@angular/platform-browser": "2.0.0-rc.1",
+    "@angular/platform-browser-dynamic": "2.0.0-rc.1",
+    "@angular/router": "2.0.0-rc.1",
+    "@angular/router-deprecated": "2.0.0-rc.1",
+    "@angular/upgrade": "2.0.0-rc.1",
+    "angular2-in-memory-web-api": "0.0.7",
+    "bootstrap": "^3.3.6",
+    "es6-shim": "^0.35.0",
+    "ng2-bootstrap": "^1.0.16",
+    "reflect-metadata": "^0.1.3",
+    "rxjs": "5.0.0-beta.6",
+    "systemjs": "0.19.27",
+    "zone.js": "^0.6.12"
+  },
+  "devDependencies": {
+    "canonical-path": "0.0.2",
+    "lodash": "^4.11.1",
+    "tslint": "^3.7.4",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1"
+  }
+}
