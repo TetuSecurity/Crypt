@@ -8,17 +8,15 @@ var typings     = require('gulp-typings');
 var install     = require('gulp-install');
 
 gulp.task('tscompile', function(){
-  return gulp.src(['src/client/src/*.ts', '!*.d.ts'])
-  .pipe(tsc({
+  var tsProject = tsc.createProject('src/client/tsconfig.json', {
     "target": "es3",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "removeComments": false,
-    "noImplicitAny": false
-  })).pipe(gulp.dest('dist/client/app'));
+    "experimentalDecorators": true
+  });
+  return tsProject.src().pipe(tsc(tsProject)).js.pipe(gulp.dest('dist/client/app'));
 });
 
 gulp.task('usemin', function(){
@@ -63,7 +61,7 @@ gulp.task('install_client_typings', ['copy_client_root', 'install_client'], func
 
 gulp.task('watch', function(){
   console.log('watching for ts changes...');
-  return gulp.watch(['src/client/src/*.ts', 'src/client/**/*.html'], ['tscompile', 'copy_client_root', 'copy_templates']);
+  return gulp.watch(['src/client/src/**/*.ts', 'src/client/**/*.html'], ['tscompile', 'copy_client_root', 'copy_templates']);
 });
 
 // Default Task
