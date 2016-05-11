@@ -17,4 +17,8 @@ import { LoginComponent } from './login.component';
 export class AppComponent{
   Title: string =  'Crypt';
   constructor(private router: Router) {}
+
+  isLoggedIn():boolean{
+    return true;
+  }
 }
