@@ -74,7 +74,7 @@ gulp.task('check-for-favicon-update', function(done) {
 
 gulp.task('tscompile', function(){
   var tsProject = tsc.createProject('src/client/tsconfig.json', {
-    "target": "es3",
+    "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
@@ -135,4 +135,4 @@ gulp.task('watch', function(){
 });
 
 // Default Task
-gulp.task('default', ['copy_node', 'copy_client_root', 'copy_templates', 'tscompile', 'install_api', 'install_client', 'install_client_typings']);
+gulp.task('default', ['copy_node', 'copy_client_root', 'copy_templates', 'inject-favicon-markups', 'tscompile', 'install_api', 'install_client', 'install_client_typings']);
