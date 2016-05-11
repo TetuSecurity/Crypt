@@ -1,14 +1,33 @@
 <div class="row">
-  <div class="col-sm-8 col-sm-offset-2">
-    <form>
-      <div class="input-group">
-        <span class="input-group-addon">Email </span>
-        <input type="email" class="form-control" placeholder="Email">
+  <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-xs-4 col-xs-offset-4">
+            <img class="img-thumbnail center-block" src="favicons/favicon-32x32.png" alt="Crypt" />
+          </div>
+        </div>
       </div>
-      <div class="input-group">
-        <span class="input-group-addon">Password</span>
-        <input type="password" class="form-control" placeholder="Password">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-10 col-xs-offset-1">
+            <h1>Log In</h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-8 col-xs-offset-2">
+            <form (submit)="logIn()">
+              <input type="email" class="form-control" placeholder="Email">
+              <input type="password" class="form-control" placeholder="Password">
+              <hr>
+              <button type="submit" class="btn btn-success">Log In</button>
+            </form>
+          </div>
+        </div>
       </div>
-    </form>
+      <div class="panel-footer">
+        What's my password again?
+      </div>
+    </div>
   </div>
 </div>

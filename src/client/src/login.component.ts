@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'login',
@@ -6,4 +6,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LoginComponent {
   constructor() { }
+
+  logIn():void{
+    console.log('Logging In');
+  }
 }
