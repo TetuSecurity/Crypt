@@ -6,9 +6,11 @@ var usemin      = require('gulp-usemin');
 var tsc         = require('gulp-typescript');
 var typings     = require('gulp-typings');
 var install     = require('gulp-install');
+var clean 			= require('gulp-clean');
 var realFavicon = require ('gulp-real-favicon');
+var source 			= require('vinyl-source-stream');
+var browserify  = require('browserify');
 var fs          = require('fs');
-
 var FAVICON_DATA_FILE = 'faviconData.json';
 
 gulp.task('generate-favicon', function(done) {
@@ -81,17 +83,23 @@ gulp.task('tscompile', function(){
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   });
-  return tsProject.src().pipe(tsc(tsProject)).js.pipe(gulp.dest('dist/client/app'));
+  return tsProject.src().pipe(tsc(tsProject)).js.pipe(gulp.dest('dist/client/src'));
 });
 
-gulp.task('usemin', function(){
-  return gulp.src('src/client/index.html')
-    .pipe(usemin({
-        js: [uglify(), 'concat'],
-        css: [uncss({html:['src/client/index.html', 'src/client/templates/*.html'], ignore:[]}), nano(), 'concat']
-      })
-    )
-    .pipe(gulp.dest('dist/client'));
+gulp.task('browserify', ['tscompile', 'install_client'], function(){
+	var b = browserify({
+		entries: 'dist/client/src/main.js',
+		debug: true
+	});
+	return b.bundle()
+		.on('error', function(err){console.log(err);})
+		.pipe(source('main.js'))
+		.pipe(gulp.dest('./dist/client/app/'));
+});
+
+gulp.task('clean_up', ['browserify'], function(){
+	return gulp.src(['dist/client/src/'])
+	.pipe(clean());
 });
 
 gulp.task('copy_templates', function(){
@@ -100,7 +108,7 @@ gulp.task('copy_templates', function(){
 });
 
 gulp.task('copy_client_root', function(){
-  return gulp.src(['src/client/favicon.ico', 'src/client/index.html', 'src/client/package.json', 'src/client/typings.json', 'src/client/systemjs.config.js'])
+  return gulp.src(['src/client/index.html', 'src/client/package.json'])
       .pipe(gulp.dest('dist/client/'));
 });
 
@@ -119,14 +127,12 @@ gulp.task('install_client', ['copy_client_root'], function(){
     .pipe(install({production:true, ignoreScripts:true}));
 });
 
-gulp.task('install_client_typings', ['copy_client_root', 'install_client'], function(){
-  return gulp.src('dist/client/typings.json')
-    .pipe(typings());
-});
+gulp.task('copy', ['copy_node', 'copy_client_root', 'copy_templates']);
+gulp.task('install', ['install_api', 'install_client']);
 
 gulp.task('watch', function(){
   console.log('watching for changes...');
-  gulp.watch(['src/client/src/**/*.ts'], ['tscompile']);
+  gulp.watch(['src/client/src/**/*.ts'], ['tscompile', 'browserify']);
   gulp.watch(['src/client/**/*.html'], ['copy_client_root', 'copy_templates']);
   gulp.watch(['./crypt.png'], ['inject-favicon-markups']);
   gulp.watch(['src/**/*', '!src/client/**/*'], ['copy_node']);
@@ -135,4 +141,4 @@ gulp.task('watch', function(){
 });
 
 // Default Task
-gulp.task('default', ['copy_node', 'copy_client_root', 'copy_templates', 'inject-favicon-markups', 'tscompile', 'install_api', 'install_client', 'install_client_typings']);
+gulp.task('default', ['copy', 'inject-favicon-markups', 'tscompile', 'install', 'browserify', 'clean_up']);
