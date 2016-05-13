@@ -1,23 +1,18 @@
 import { Component } from '@angular/core';
-import * as crypto from 'crypto';
+import { AuthService } from './services/auth.service';
+
 
 @Component({
   selector: 'login',
   templateUrl: 'templates/login.component.html'
 })
 export class LoginComponent {
-
   password:string;
-
-  constructor() { }
+  constructor(private authSvc:AuthService){ }
 
   logIn():void{
     console.log('Logging In');
+    this.authSvc.login('username');
   }
 
-  get passwordHash(){
-    var hash = crypto.createHash('sha512');
-    hash.update(this.password||'');
-    return hash.digest('hex');
-  }
 }

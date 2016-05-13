@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CanActivate } from '@angular/router-deprecated';
+import { AuthService } from './services/auth.service';
 
 export class File{
   Name: string;
@@ -22,7 +24,7 @@ export class Directory extends File{
   selector: 'file-browser',
   templateUrl: 'templates/browser.component.html'
 })
-export class BrowserComponent {
+export class BrowserComponent implements OnInit{
   files: File[];
   currentSort = {
     Field:undefined,
@@ -30,13 +32,18 @@ export class BrowserComponent {
   };
   breadcrumbs:Directory[] = [];
 
-  constructor() {
+  constructor(private authSvc:AuthService) {
     this.files = [
       new File('Sample.txt', new Date('05/07/2016')),
       new File('Maya.png', new Date('05/06/2016')),
       new Directory('My Stuff')
     ];
     this.sortBy('LastModified');
+  }
+
+  ngOnInit(){
+    console.log(this.authSvc.isLoggedIn);
+    this.authSvc.checkCreds();
   }
 
   sortBy(field:string){
