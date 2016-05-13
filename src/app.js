@@ -35,16 +35,19 @@ global.jsonParser = bodyParser.json({limit:'100mb'});
 global.urlParser = bodyParser.urlencoded({ extended: true });
 app.use(cookieParser(global.config.Cookie.Secret));
 
-/*------- Angular client on Root ------- */
-app.set('view engine','html');
-app.use(express.static(path.join(__dirname, 'client')));
-
 /*-------- API --------*/
 app.use('/api', require('./routes/api'));
 
+/*------- Angular client on Root ------- */
+app.set('view engine','html');
+app.use(express.static(path.join(__dirname, 'client')));
+app.get('/*', function(req, res){
+  return res.sendFile(path.join(__dirname, 'client/index.html'));
+});
+
 app.all('*', function(req, res){
   res.status=404;
-  return res.send('<h1>404: Not Found</h1>');
+  return res.send({Success: false, Error: 'Unknown Route'});
 });
 
 const port = global.config.Port || 3000;
