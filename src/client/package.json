@@ -6,7 +6,7 @@
     "postinstall": "typings install",
     "tsc": "tsc",
     "tsc:w": "tsc -w",
-    "typings": "typings",
+    "typings": "typings"
   },
   "repository": {
     "type": "git",
