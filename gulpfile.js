@@ -1,15 +1,10 @@
 var gulp        = require('gulp');
-var uncss       = require('gulp-uncss');
-var uglify      = require('gulp-uglify');
-var nano        = require('gulp-cssnano');
-var usemin      = require('gulp-usemin');
-var tsc         = require('gulp-typescript');
 var typings     = require('gulp-typings');
 var install     = require('gulp-install');
-var clean 			= require('gulp-clean');
-var realFavicon = require ('gulp-real-favicon');
+var realFavicon = require('gulp-real-favicon');
 var source 			= require('vinyl-source-stream');
 var browserify  = require('browserify');
+var tsify       = require('tsify');
 var fs          = require('fs');
 var FAVICON_DATA_FILE = 'faviconData.json';
 
@@ -74,32 +69,36 @@ gulp.task('check-for-favicon-update', function(done) {
 	});
 });
 
-gulp.task('tscompile', function(){
-  var tsProject = tsc.createProject('src/client/tsconfig.json', {
-    "target": "es5",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-  });
-  return tsProject.src().pipe(tsc(tsProject)).js.pipe(gulp.dest('dist/client/src'));
-});
+function handleTsErrors(err){
+	if(typeof err != typeof ''){
+		err = JSON.stringify(err);
+	}
+	if(err.search('TS2307')>-1){
+		//handle node modules
+		if(err.search(/Cannot find module \'((crypto)|(stream))\'/ig)<0){
+			console.log(err);
+		}
+	}
+	else if(err.search('TS2304')>-1){
+		//handle buffer
+		if(err.search(/Cannot find name \'Buffer\'/ig)<0){
+			console.log(err);
+		}
+	}
+	else{
+		console.log(err);
+	}
+}
 
-gulp.task('browserify', ['tscompile', 'install_client'], function(){
-	var b = browserify({
-		entries: 'dist/client/src/main.js',
+gulp.task('browserify', ['install_client'], function(){
+	return browserify({
 		debug: true
-	});
-	return b.bundle()
-		.on('error', function(err){console.log(err);})
-		.pipe(source('main.js'))
-		.pipe(gulp.dest('./dist/client/app/'));
-});
-
-gulp.task('clean_up', ['browserify'], function(){
-	return gulp.src(['dist/client/src/'])
-	.pipe(clean());
+	}).add('src/client/src/main.ts')
+	.plugin(tsify)
+	.bundle()
+	.on('error', handleTsErrors)
+	.pipe(source('main.js'))
+	.pipe(gulp.dest('./dist/client/app/'));
 });
 
 gulp.task('copy_templates', function(){
@@ -108,7 +107,7 @@ gulp.task('copy_templates', function(){
 });
 
 gulp.task('copy_client_root', function(){
-  return gulp.src(['src/client/index.html', 'src/client/package.json'])
+  return gulp.src(['src/client/index.html'])
       .pipe(gulp.dest('dist/client/'));
 });
 
@@ -117,28 +116,33 @@ gulp.task('copy_node', function(){
       .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('copy_bootstrap', ['install_client'], function(){
+	gulp.src(['!src/client/node_modules/bootstrap/dist/js/**','!src/client/node_modules/bootstrap/dist/js/','src/client/node_modules/bootstrap/dist/**'])
+	.pipe(gulp.dest('dist/client/lib'));
+});
+
 gulp.task('install_api', ['copy_node'], function(){
   return gulp.src('dist/package.json')
     .pipe(install({production:true, ignoreScripts:true}));
 });
 
-gulp.task('install_client', ['copy_client_root'], function(){
-  return gulp.src('dist/client/package.json')
+gulp.task('install_client', function(){
+  return gulp.src('src/client/package.json')
     .pipe(install({production:true, ignoreScripts:true}));
 });
 
-gulp.task('copy', ['copy_node', 'copy_client_root', 'copy_templates']);
+gulp.task('copy', ['copy_node', 'copy_client_root', 'copy_templates', 'copy_bootstrap']);
 gulp.task('install', ['install_api', 'install_client']);
 
 gulp.task('watch', function(){
   console.log('watching for changes...');
-  gulp.watch(['src/client/src/**/*.ts'], ['tscompile', 'browserify']);
+  gulp.watch(['src/client/src/**/*.ts'], ['browserify']);
   gulp.watch(['src/client/**/*.html'], ['copy_client_root', 'copy_templates']);
   gulp.watch(['./crypt.png'], ['inject-favicon-markups']);
   gulp.watch(['src/**/*', '!src/client/**/*'], ['copy_node']);
   gulp.watch(['./package.json'], ['install_api']);
-  return gulp.watch(['src/client/package.json'], ['install_client']);
+  return gulp.watch(['src/client/package.json'], ['install_client', 'browserify']);
 });
 
 // Default Task
-gulp.task('default', ['copy', 'inject-favicon-markups', 'tscompile', 'install', 'browserify', 'clean_up']);
+gulp.task('default', ['copy', 'inject-favicon-markups', 'install', 'browserify']);
