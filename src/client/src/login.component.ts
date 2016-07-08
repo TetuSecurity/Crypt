@@ -1,18 +1,30 @@
 import { Component } from '@angular/core';
 import { AuthService } from './services/auth.service';
-
+import { EncryptionService } from './services/encryption.service';
 
 @Component({
   selector: 'login',
   templateUrl: 'templates/login.component.html'
 })
 export class LoginComponent {
+  email:string;
   password:string;
-  constructor(private authSvc:AuthService){ }
+  loading:boolean=false;
+
+  constructor(
+    private authSvc:AuthService,
+    private encSvc:EncryptionService
+  ){ }
 
   logIn():void{
     console.log('Logging In');
-    this.authSvc.login('username');
+    this.loading= true;
+    var that = this;
+    setTimeout(function(){
+      that.authSvc.login(that.email, that.password);
+    }, 250);
   }
+
+
 
 }

@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" *ngIf="!loading">
   <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -17,7 +17,7 @@
         <div class="row">
           <div class="col-xs-8 col-xs-offset-2">
             <form (submit)="logIn()">
-              <input type="email" class="form-control" placeholder="Email">
+              <input type="email" class="form-control" placeholder="Email" [(ngModel)]="email">
               <input type="password" class="form-control" placeholder="Password" [(ngModel)]="password">
               <hr>
               <button type="submit" class="btn btn-success">Log In</button>
@@ -26,8 +26,44 @@
         </div>
       </div>
       <div class="panel-footer">
-        What's my password again?
+
       </div>
     </div>
+  </div>
+</div>
+<div class="row" *ngIf="loading">
+  <div class="col-xs-2 col-xs-offset-5" style="margin-top:50px;">
+    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" viewBox="0 -175 1500 1575">
+      <style id="style3">
+        @keyframes spin{
+          0% { transform: rotate(0deg); transform-origin: 50% 2%;}
+          10% { transform: rotate(0deg); transform-origin: 50% 2%;}
+          90% { transform: rotate(720deg); transform-origin: 50% 2%;}
+          100% { transform: rotate(720deg); transform-origin: 50% 2%;}
+        }
+
+        @keyframes hideshow{
+          0% { opacity: 1; transform: scale(1,1); transform-origin: center center;}
+          10% { opacity: 1; transform: scale(1,1); transform-origin: center center;}
+          50% { opacity: .0; transform: scale(.5,.5); transform-origin: center center;}
+          90% { opacity: 1; transform: scale(1,1); transform-origin: center center;}
+          100% { opacity: 1; transform: scale(1,1); transform-origin: center center;}
+        }
+
+        .st0{fill:#352F2F;}
+        .st1{fill:#01CCCC; animation: hideshow 3s ease-out infinite;}
+        .st2{fill:#CC9934; animation: spin 3s ease infinite;}
+        .st3{fill:#FFFFFF;}
+      </style>
+      <g id="layer1">
+        <g id="g5">
+          <path class="st2" d="M1336.7559 512.95657c-32.85422-2.0534-61.60166 22.58727-63.65504 55.44148-10.26694 141.68378-73.92198 273.10063-178.64478 369.60987-104.7228 96.50925-240.24642 151.95073-383.9836 151.95073-143.73716 0-279.2608-53.3881-383.98358-151.95073-104.7228-96.50924-168.37784-227.9261-178.64478-369.60987-2.0534-32.8542-30.80082-57.49487-63.65503-55.44148-34.9076 4.10677-59.5483 32.8542-57.4949 65.70842 12.32032 172.4846 90.3491 330.5955 215.60575 447.6386 127.31007 119.0965 291.58112 182.75154 466.11912 182.75154s338.80904-65.70843 466.1191-182.75155c127.31012-117.0431 203.28547-277.2074 215.6058-447.6386 4.10678-32.85423-20.53388-61.60167-53.3881-65.70844z" id="path9" fill="#cc9934"/>
+        </g>
+      </g>
+      <g id="layer2">
+        <path class="st1" style="line-height:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;text-transform:none;block-progression:tb;isolation:auto;mix-blend-mode:normal" d="M714.58943 167.1708a54.9545 57.837 0 0 0-41.93476 20.67848l-348.84263 425.5398a54.9545 57.837 0 0 0 21.78304 91.7143L685.574 843.49645a54.9545 57.837 0 0 0 58.86685-.6349L1076.4621 698.8661a54.9545 57.837 0 0 0 20.8273-91.05328L761.21926 194.1603a54.9545 57.837 0 0 0-46.62983-26.9895zm-54.99646 213.67114V708.9057l-201.6484-82.08134 201.6484-245.98242zm109.89803 1.47432l194.9967 240.01382-194.9967 84.56865V382.31626z" id="path4154" color="#000" font-family="sans-serif" white-space="normal" overflow="visible" solid-color="#000000" fill="#01cccc" stroke-width="95" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </svg>
+    <h1 class="text-center">LOADING...</h1>
   </div>
 </div>

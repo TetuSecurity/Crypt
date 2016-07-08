@@ -11,6 +11,8 @@
     "dist",
     "node_modules",
     "src/client/node_modules",
+    "node_modules/**",
+    "src/client/node_modules/**",
     "src/client/typings/main",
     "src/client/typings/main.d.ts"
   ],

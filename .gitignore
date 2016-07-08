@@ -36,3 +36,4 @@ src/client/lib/
 dist/
 src/client/typings/
 faviconData.json
+typings/

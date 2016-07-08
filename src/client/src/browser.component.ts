@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
+import { EncryptionService } from './services/encryption.service';
 
 export class File{
   Name: string;
@@ -31,7 +32,10 @@ export class BrowserComponent implements OnInit{
   };
   breadcrumbs:Directory[] = [];
 
-  constructor(private authSvc:AuthService) {
+  constructor(
+    private authSvc:AuthService,
+    private encSvc:EncryptionService
+  ) {
     this.files = [
       new File('Sample.txt', new Date('05/07/2016')),
       new File('Maya.png', new Date('05/06/2016')),
@@ -41,7 +45,6 @@ export class BrowserComponent implements OnInit{
   }
 
   ngOnInit(){
-    console.log(this.authSvc.isLoggedIn);
     this.authSvc.checkCreds();
   }
 
@@ -96,5 +99,21 @@ export class BrowserComponent implements OnInit{
       }
     }
     //fetch end location's files
+  }
+
+  downloadFile(file:File){
+    //fetch file by ID
+    //if file is shared, prompt for shared key
+    var enccontents;
+    var filecontents = this.encSvc.decrypt(enccontents, this.authSvc.key);
+  }
+
+  uploadFile(file:File){
+    //send post to get fileid
+    var contents;
+    var encobj = this.encSvc.encrypt(contents, this.authSvc.key);
+    //stream encobj.Data
+    //stream encobj.Key
+    //refresh browser
   }
 }
