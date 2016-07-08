@@ -74,21 +74,7 @@ function handleTsErrors(err){
 	if(typeof err != typeof ''){
 		err = JSON.stringify(err);
 	}
-	if(err.search('TS2307')>-1){
-		//handle node modules
-		if(err.search(/Cannot find module \'((crypto)|(stream))\'/ig)<0){
-			console.log(err);
-		}
-	}
-	else if(err.search('TS2304')>-1){
-		//handle buffer
-		if(err.search(/Cannot find name \'Buffer\'/ig)<0){
-			console.log(err);
-		}
-	}
-	else{
-		console.log(err);
-	}
+	console.error(err);
 }
 
 gulp.task('browserify', ['install_client'], function(){
