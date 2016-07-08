@@ -1,9 +1,10 @@
 var gulp        = require('gulp');
-var typings     = require('gulp-typings');
 var install     = require('gulp-install');
 var realFavicon = require('gulp-real-favicon');
 var source 			= require('vinyl-source-stream');
+var buffer      = require('vinyl-buffer');
 var browserify  = require('browserify');
+var uglify      = require('gulp-uglify');
 var tsify       = require('tsify');
 var fs          = require('fs');
 var FAVICON_DATA_FILE = 'faviconData.json';
@@ -94,10 +95,12 @@ gulp.task('browserify', ['install_client'], function(){
 	return browserify({
 		debug: true
 	}).add('src/client/src/main.ts')
-	.plugin(tsify)
+	.plugin(tsify, {target:'es5', project:'./tsconfig.json'})
 	.bundle()
 	.on('error', handleTsErrors)
-	.pipe(source('main.js'))
+	.pipe(source('main.min.js'))
+	.pipe(buffer())
+	.pipe(uglify())
 	.pipe(gulp.dest('./dist/client/app/'));
 });
 
