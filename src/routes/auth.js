@@ -1,8 +1,10 @@
-var router = require('express').Router();
-var crypto = require('crypto');
-var uuid = require('node-uuid');
-var db = require('../middleware/db');
-var email = require('../middleware/email');
+const router = require('express').Router();
+const crypto = require('crypto');
+const uuid = require('node-uuid');
+const db = require('../middleware/db');
+const email = require('../middleware/email');
+
+router.use(global.jsonParser);
 
 router.get('/', function(req, res){
   if(res.locals.user){

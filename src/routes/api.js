@@ -1,5 +1,5 @@
-var router = require('express').Router();
-var db = require('../middleware/db');
+const router = require('express').Router();
+const db = require('../middleware/db');
 
 router.use(function(req, res, next){
   if(!req.signedCookies || !req.signedCookies[global.config.Cookie.Name]){
@@ -29,5 +29,16 @@ router.use(function(req, res, next){
 });
 
 router.use('/auth', require('./auth'));
+
+router.use(function(req, res, next){
+  if(!res.locals.user){
+    return res.send({Success: false, Error:'Unauthenticated!'});
+  }
+  else {
+    return next();
+  }
+});
+
+router.use('/files', require('./files'));
 
 module.exports=router;

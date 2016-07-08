@@ -12,18 +12,18 @@ if(global.config.Email){
   else if(global.config.Email.SES){
     //connect with SES config
     sesTransport= require('nodemailer-ses-transport');
-    transporter = nodemailer.createTransport(sesTransport());
+    transporter = nodemailer.createTransport(sesTransport(global.config.Email.SES));
   }
   else{
     //try to connect to SES through EC2 role
     sesTransport= require('nodemailer-ses-transport');
-    transporter = nodemailer.createTransport(sesTransport(global.config.Email.SES));
+    transporter = nodemailer.createTransport(sesTransport());
   }
 }
 else{
   //try to connect to SES through EC2 role
   sesTransport= require('nodemailer-ses-transport');
-  transporter = nodemailer.createTransport(sesTransport(global.config.Email.SES));
+  transporter = nodemailer.createTransport(sesTransport());
 }
 
 module.exports={
