@@ -56,7 +56,7 @@ router.put('/upload/:fileid', function(req, res){
   });
 });
 
-router.get('/:fileid', function(req, res){
+router.get('/download/:fileid', function(req, res){
   var fileid = req.params.fileid;
   db.query('Select * from `filemetadata` where `Owner`=? and `FileID`=?;', [res.locals.user.ID, fileid], function(err, results){
     if(err){
@@ -69,6 +69,56 @@ router.get('/:fileid', function(req, res){
     const decipher = crypto.createDecipher('aes256', new Buffer(global.config.StorageKey, 'base64'));
     store.get(fileid).pipe(decipher).pipe(zlib.createGunzip()).pipe(res).once('close', function(){
       return res.end();
+    });
+  });
+});
+
+router.get('/:parentid', function(req, res){
+  var pid = req.params.parentid;
+  var q = 'Select * from `filemetadata` where `Owner`=? and `Parent`=?;';
+  var args = [res.locals.user.ID, pid];
+  if(!pid || pid<1){
+    q = 'Select * from `filemetadata` where `Owner`=? and `Parent`=(Select `ID` from `filemetadata` where `Owner`=? and `Parent`=-1 LIMIT 1);';
+    args = [res.locals.user.ID, res.locals.user.ID];
+  }
+  db.query(q, args, function(err, files){
+    if(err){
+      return res.send({Success:false, Error: err});
+    }
+    return res.send({Success:true, Files: files});
+  });
+});
+
+router.post('/', global.jsonParser, function(req, res){
+  var body = req.body;
+  if(!body.Name || !body.Parent){
+    return res.send({Success: false, Error: 'Missing required fields'});
+  }
+  var q = 'Insert into `filemetadata` (`Name`, `Owner`, `Parent`) VALUES(?,?,?);';
+  var args = [body.Name, res.locals.user.ID, body.Parent];
+  if(body.Parent <1){
+    q= 'Insert into `filemetadata` (`Name`, `Owner`, `Parent`) Select ?, ?, `ID` from `filemetadata` where `Owner`=? and `Parent`=-1 LIMIT 1;';
+    args =[body.Name, res.locals.user.ID, res.locals.user.ID];
+  }
+  db.query(q, args, function(err, result){
+    if(err){
+      if(err.code == 'ER_DUP_KEY'){
+        return res.send({Success: false, Error: 'A directory with that name already exists this context'});
+      }
+      console.log('Error adding new directory', err);
+      return res.send({Success: false, Error: 'Internal Server Error'});
+    }
+    var fid = result.insertId;
+    db.query('Select * from `filemetadata` where `ID`=?;', [fid], function(err, results){
+      if(err){
+        console.log(err);
+        return res.send({Success: false, Error: 'Internal Server Error'});
+      }
+      if(results.length<1){
+        console.log('Error retreiving newly added row');
+        return res.send({Success: false, Error: 'Internal Server Error'});
+      }
+      return res.send({Success:true, Directory: results[0]});
     });
   });
 });

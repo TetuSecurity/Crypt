@@ -1,22 +1,35 @@
 import { Component, OnInit } from '@angular/core';
+import { Http, Response } from '@angular/http';
 import { AuthService } from './services/auth.service';
 import { EncryptionService } from './services/encryption.service';
 
 export class File{
   Name: string;
+  ID: number;
   Parent:Directory;
   LastModified: Date;
   IsDirectory: boolean = false;
-  constructor(filename:string, lm?:Date){
-    this.Name = filename;
-    this.LastModified = lm || null;
+  constructor(fileobj){
+    this.Name = fileobj.Name;
+    this.LastModified = fileobj.ModifiedDT; // new Date(Date.parse(fileobj.ModifiedDT.replace('-','/','g')));
+    this.ID = fileobj.ID;
+    this.IsDirectory = !fileobj.FileID;
   }
 }
 
 export class Directory extends File{
   IsDirectory:boolean = true;
-  constructor(filename:string, lm?:Date){
-    super(filename, lm);
+  constructor(fileobj){
+    super(fileobj);
+  }
+}
+
+function mapFiles(ifile):File{
+  if(ifile['FileID']){
+    return new File(ifile);
+  }
+  else{
+    return new Directory(ifile);
   }
 }
 
@@ -31,21 +44,52 @@ export class BrowserComponent implements OnInit{
     ASC:undefined
   };
   breadcrumbs:Directory[] = [];
+  currentView:number = -1;
+  adding:boolean = false;
+  newFolderName:string ='';
 
   constructor(
+    private http: Http,
     private authSvc:AuthService,
     private encSvc:EncryptionService
   ) {
-    this.files = [
-      new File('Sample.txt', new Date('05/07/2016')),
-      new File('Maya.png', new Date('05/06/2016')),
-      new Directory('My Stuff')
-    ];
+    this.files = [];
     this.sortBy('LastModified');
+    var that = this;
+    this.getFiles(null, function(err, data:Array<Object>){
+      if(err){
+        console.log(err);
+      }
+      else{
+        that.files=data.map(mapFiles);
+        that.sortBy('LastModified');
+      }
+    });
   }
 
   ngOnInit(){
     this.authSvc.checkCreds();
+  }
+
+  getFiles(parentID:number, callback){
+    var that = this;
+    var url = '/api/files/';
+    if(parentID){
+      url+=parentID;
+    }
+    else{
+      url += '-1';
+    }
+    this.http.get(url).subscribe(function(res: Response){
+      let body = res.json();
+      if(body.Success){
+        that.currentView = parentID||-1;
+        return callback(null, body.Files);
+      }
+      else{
+        return callback(body.Error);
+      }
+    });
   }
 
   sortBy(field:string){
@@ -57,7 +101,7 @@ export class BrowserComponent implements OnInit{
     }
     let mult:number = (this.currentSort.ASC ? 1 : -1);
     this.files.sort(function(a:File, b:File){
-      if(a.IsDirectory == b.IsDirectory){
+      if(a.IsDirectory === b.IsDirectory){
         if(a[field] < b[field]){
           return -1 * mult;
         }
@@ -83,22 +127,42 @@ export class BrowserComponent implements OnInit{
     if(!folder.IsDirectory){
       return;
     }
+    var that = this;
     this.breadcrumbs.push(folder);
-    //fetch files for that location
+    this.getFiles(folder.ID, function(err, data){
+      if(err){
+        console.log(err);
+      }
+      else{
+        that.files=data.map(mapFiles);
+      }
+    });
   }
 
   navigateTo(location:Directory){
     //swim upstream
+    var pid;
     if(!location){
       this.breadcrumbs = [];
+      pid = null;
     }
     else{
       let i = this.breadcrumbs.indexOf(location);
       if(i>-1){
-        this.breadcrumbs.splice(i,1);
+        this.breadcrumbs = this.breadcrumbs.slice(0,i+1);
       }
+      console.log(this.breadcrumbs);
+      pid = location.ID;
     }
-    //fetch end location's files
+    var that = this;
+    this.getFiles(pid, function(err, data){
+      if(err){
+        console.log(err);
+      }
+      else{
+        that.files=data.map(mapFiles);
+      }
+    });
   }
 
   downloadFile(file:File){
@@ -115,5 +179,21 @@ export class BrowserComponent implements OnInit{
     //stream encobj.Data
     //stream encobj.Key
     //refresh browser
+  }
+
+  addDir(name:string){
+    var that = this;
+    this.http.post('/api/files/', {Name:name, Parent:this.currentView})
+    .subscribe(function(res:Response){
+      let body = res.json();
+      if(body.Success){
+        that.adding=false;
+        that.newFolderName = '';
+        that.diveIn(new Directory(body.Directory));
+      }
+      else{
+        console.log(body.Error);
+      }
+    });
   }
 }

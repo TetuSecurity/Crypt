@@ -4,14 +4,26 @@
   </div>
   <div class="col-md-8 col-xs-10 col-xs-offset-1 col-md-offset-0">
     <div class="row">
-      <p>
-        <span>
-          <a href="javascript:void(0)" style="display:inline;" (click)="navigateTo(null)">/</a>
-        </span>
-        <span *ngFor="let crumb of breadcrumbs">
-          <a href="javascript:void(0)" style="display:inline;" (click)="navigateTo(crumb)">{{crumb.Name}} /</a>
-        </span>
-      </p>
+      <div class="col-md-6">
+        <p>
+          <span>
+            <a href="javascript:void(0)" style="display:inline;" (click)="navigateTo(null)">/</a>
+          </span>
+          <span *ngFor="let crumb of breadcrumbs">
+            <a href="javascript:void(0)" style="display:inline;" (click)="navigateTo(crumb)">{{crumb.Name}} /</a>
+          </span>
+        </p>
+      </div>
+      <div class="col-md-6">
+        <p class="pull-right">
+          <span [hidden]="adding"><span class="glyphicon glyphicon-plus clickable" (click)="adding=true" data-toggle="tooltip" title="Add Directory"></span></span>
+          <input type="text" name="newFolder" value="" placeholder="New Folder Name"
+              [(ngModel)]="newFolderName" [hidden]="!adding" (blur)="adding=false; newFolderName=''" (keyup.enter)="addDir(newFolderName)"
+          >
+        </p>
+      </div>
+    </div>
+    <div class="row">
       <div class="table-responsive">
         <table class="table table-striped table-condensed">
           <thead>
@@ -34,7 +46,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="clickable" *ngIf="breadcrumbs.length>0" (click)="navigateTo(breadcrumbs[breadcrumbs.length-1])">
+            <tr class="clickable" *ngIf="breadcrumbs.length>0" (click)="navigateTo(breadcrumbs[breadcrumbs.length-2])">
               <td>
                 <span class="glyphicon glyphicon-folder-open"></span>
               </td>
