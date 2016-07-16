@@ -34,6 +34,7 @@ router.post('/signup', function(req, res){
     conn.beginTransaction(function(err){
       if(err){
         console.log('Error beginning signup transaction', err);
+        conn.release();
         return res.send({Success: false, Error: 'Internal Server Error'});
       }
       var iq = 'Insert into `users` (`Email`, `Salt`, `PasswordHash`,`Confirm`, `Active`) VALUES (?, ?, ?, ?, 0);';
@@ -41,12 +42,14 @@ router.post('/signup', function(req, res){
         if(err){
           if(err.code == 'ER_DUP_KEY'){
             conn.rollback(function(){
+              conn.release();
               return res.send({Success: false, Error:'User with that email already exists!'});
             });
           }
           else{
             conn.rollback(function(){
               console.log(err);
+              conn.release();
               return res.send({Success: false, Error: 'Internal Server Error'});
             });
           }
@@ -54,8 +57,9 @@ router.post('/signup', function(req, res){
         else{
           email.confirm_email(body.Email, req.protocol+'://'+req.hostname+'/api/auth/confirm/'+confirmation, function(err){
             if(err){
-                conn.rollback(function(){
+              conn.rollback(function(){
                 console.log('Error sending confirmation email', err);
+                conn.release();
                 return res.send({Success: false, Error: 'Internal Server Error'});
               });
             }
@@ -64,9 +68,11 @@ router.post('/signup', function(req, res){
                 if(err) {
                   conn.rollback(function(){
                     console.log(err);
+                    conn.release();
                     return res.send({Success: false, Error: 'Internal Server Error'});
                   });
                 }
+                conn.release();
                 return res.send({Success: true});
               });
             }
@@ -79,15 +85,70 @@ router.post('/signup', function(req, res){
 
 router.get('/confirm/:confirmkey', function(req, res){
   var confirmkey = req.params.confirmkey;
-  db.query('Update `users` Set `Active`=1, `Confirm`=NULL where `Confirm`=?;', [confirmkey], function(err, result){
+  db.getConnection(function(err, conn){
     if(err){
-      console.log('Error confirming email', err);
-      return res.send({Success:false, Error: 'Internal Sever Error'});
+      console.log('Error connecting to database', err);
+      return res.send({Success: false, Error: 'Internal Server Error'});
     }
-    if(result.changedRows <1){
-      return res.send({Success: false, Error: 'Invalid Confirmation Key'});
-    }
-    return res.redirect('/');
+    conn.beginTransaction(function(err){
+      if(err){
+        console.log('Error beginning confirmation transaction', err);
+        conn.release();
+        return res.send({Success: false, Error: 'Internal Server Error'});
+      }
+      conn.query('Select * from `users` where `Active`=0 and `Confirm` = ? LIMIT 1;', [confirmkey], function(err, results){
+        if(err){
+          conn.rollback(function(){
+            console.log('Error confirming email', err);
+            conn.release();
+            return res.send({Success:false, Error: 'Internal Sever Error'});
+          });
+        }
+        else if(results.length<1){
+          conn.rollback(function(){
+            conn.release();
+            return res.send({Success: false, Error: 'Invalid Confirmation Key'});
+          });
+        }
+        else{
+          res.locals.user = results[0];
+          conn.query('Update `users` Set `Active`=1, `Confirm`=NULL where `ID`=?;', [res.locals.user.ID], function(err, result){
+            if(err){
+              conn.rollback(function(){
+                console.log('Error confirming email', err);
+                conn.release();
+                return res.send({Success:false, Error: 'Internal Sever Error'});
+              });
+            }
+            else{
+              conn.query('Insert into `filemetadata` (`Name`, `Owner`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `Name`=`Name`;', ['/', res.locals.user.ID], function(err, result2){
+                if(err){
+                  conn.rollback(function(){
+                    conn.release();
+                    return res.send({Success: false, Error: 'Error creating home directory'});
+                  });
+                }
+                else{
+                  conn.commit(function(err){
+                    if(err){
+                      conn.rollback(function(){
+                        console.log(err);
+                        conn.release();
+                        return res.send({Success: false, Error: 'Internal Server Error'});
+                      });
+                    }
+                    else{
+                      conn.release();
+                      return res.redirect('/');
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    });
   });
 });
 
@@ -123,7 +184,11 @@ router.post('/login', function(req, res){
             console.log('Error Saving Session ID', err);
             return res.send({Success: false, Error: 'Internal Server Error'});
           }
-          res.cookie(global.config.Cookie.Name, session, {maxAge: timediff*1000, secure: req.secure, signed:true});
+          var c_obj = {secure: req.secure, signed:true, httpOnly:true};
+          if(body.Remember){
+            c_obj.maxAge = timediff*1000;
+          }
+          res.cookie(global.config.Cookie.Name, session, c_obj);
           return res.send({Success: true, User: u});
         });
       }

@@ -9,6 +9,8 @@ import { EncryptionService } from './services/encryption.service';
 export class LoginComponent {
   email:string;
   password:string;
+  remember:boolean;
+  loggingIn:boolean=true;
   loading:boolean=false;
 
   constructor(
@@ -16,12 +18,16 @@ export class LoginComponent {
     private encSvc:EncryptionService
   ){ }
 
+  signup():void{
+    this.authSvc.signup(this.email, this.password);
+  }
+
   logIn():void{
     console.log('Logging In');
     this.loading= true;
     var that = this;
     setTimeout(function(){
-      that.authSvc.login(that.email, that.password);
+      that.authSvc.login(that.email, that.password, that.remember);
     }, 250);
   }
 

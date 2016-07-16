@@ -16,11 +16,12 @@
         </div>
         <div class="row">
           <div class="col-xs-8 col-xs-offset-2">
-            <form (submit)="logIn()">
-              <input type="email" class="form-control" placeholder="Email" [(ngModel)]="email">
-              <input type="password" class="form-control" placeholder="Password" [(ngModel)]="password">
+            <form name="authform" (submit)="loggingIn?logIn():signup()">
+              <input type="email" class="form-control" placeholder="Email" [(ngModel)]="email" required>
+              <input type="password" class="form-control" placeholder="Password" [(ngModel)]="password" required>
               <hr>
-              <button type="submit" class="btn btn-success">Log In</button>
+              <a href="javascript:void(0)" (click)="loggingIn=!loggingIn">{{loggingIn?'Sign up instead':'Log in instead'}}</a>
+              <button type="submit" class="btn btn-success">{{loggingIn?'Log In':'Sign Up'}}</button>
             </form>
           </div>
         </div>
