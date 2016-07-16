@@ -4,6 +4,7 @@ var realFavicon = require('gulp-real-favicon');
 var source 			= require('vinyl-source-stream');
 var buffer      = require('vinyl-buffer');
 var browserify  = require('browserify');
+var watchify 		= require('watchify');
 var uglify      = require('gulp-uglify');
 var tsify       = require('tsify');
 var fs          = require('fs');
@@ -72,22 +73,36 @@ gulp.task('check-for-favicon-update', function(done) {
 
 function handleTsErrors(err){
 	if(typeof err != typeof ''){
-		err = JSON.stringify(err);
+		err = JSON.stringify(err, null, 2);
 	}
 	console.error(err);
 }
 
+function bundle(watch){
+	var props = {debug:true};
+	var b = watch ? watchify(browserify(props)) : browserify(props);
+	b.add('src/client/src/main.ts').plugin(tsify, {target:'es5', project:'./tsconfig.json'});
+	function rebundle(){
+		b.bundle()
+		.on('error', handleTsErrors)
+		.pipe(source('main.min.js'))
+		//.pipe(buffer())
+		//.pipe(uglify())
+		.pipe(gulp.dest('./dist/client/app/'));
+	}
+	b.on('update', function() {
+		rebundle();
+		console.log('Rebundling...');
+	});
+	return rebundle();
+}
+
 gulp.task('browserify', ['install_client'], function(){
-	return browserify({
-		debug: true
-	}).add('src/client/src/main.ts')
-	.plugin(tsify, {target:'es5', project:'./tsconfig.json'})
-	.bundle()
-	.on('error', handleTsErrors)
-	.pipe(source('main.min.js'))
-	.pipe(buffer())
-	.pipe(uglify())
-	.pipe(gulp.dest('./dist/client/app/'));
+	return bundle(false);
+});
+
+gulp.task('watchify', ['install_client'], function(){
+	return bundle(true);
 });
 
 gulp.task('copy_templates', function(){
@@ -125,12 +140,12 @@ gulp.task('install', ['install_api', 'install_client']);
 
 gulp.task('watch', function(){
   console.log('watching for changes...');
-  gulp.watch(['src/client/src/**/*.ts'], ['browserify']);
   gulp.watch(['src/client/**/*.html'], ['copy_client_root', 'copy_templates']);
   gulp.watch(['./crypt.png'], ['inject-favicon-markups']);
   gulp.watch(['src/**/*', '!src/client/**/*'], ['copy_node']);
   gulp.watch(['./package.json'], ['install_api']);
-  return gulp.watch(['src/client/package.json'], ['install_client', 'browserify']);
+  //gulp.watch(['src/client/package.json', 'src/client/src/**/*.ts'], ['install_client', 'browserify']);
+	return bundle(true);
 });
 
 // Default Task
