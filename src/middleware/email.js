@@ -31,7 +31,7 @@ module.exports={
     var pt = "To confirm your Crypt account, please visit "+ confirmlink + " in your browser.";
     var html = '<p>To confirm your Crypt account, please visit <a href="'+confirmlink+'" alt="confirmation">'+confirmlink+'</a> in a browser.</p>';
     transporter.sendMail({
-      from: global.config.Email.From || "Crypt@yoursite.com",
+      from: (global.config.Email ||{From:"Crypt@yoursite.com"}).From,
       to: to,
       subject: 'Please confirm your email for Crypt',
       text: pt,
