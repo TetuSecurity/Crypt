@@ -69,7 +69,7 @@ router.post('/signup', function(req, res){
                 }
                 else{
                   conn.release();
-                  return res.send({Success: true});  
+                  return res.send({Success: true});
                 }
               });
             }
@@ -256,9 +256,15 @@ router.post('/login/2', function(req, res){
     }
     else{
       var user = results[0];
-      var decipher = crypto.createDecipher('aes256', user.LastNonce);
-      var response = decipher.update(body.Response, 'base64', 'base64');
-      response += decipher.final('base64');
+      var response;
+      try{
+        var decipher = crypto.createDecipher('aes256', user.LastNonce);
+        response = decipher.update(body.Response, 'base64', 'base64');
+        response += decipher.final('base64');
+      }catch(error){
+        console.log(error);
+        return res.send({Success:false, Error: 'Incorrect Username or Password'});
+      }
       var rhash = crypto.createHash('sha512');
       var comp = rhash.update(user.Salt+response).digest('base64');
       if(comp == user.ResponseHash){
