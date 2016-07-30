@@ -1,16 +1,20 @@
 CREATE SCHEMA IF NOT EXISTS `crypt`;
 USE `crypt`;
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE IF NOT EXISTS  `users` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `Email` varchar(200) DEFAULT NULL,
+  `Email` varchar(200) NOT NULL,
   `Salt` varchar(32) DEFAULT NULL,
-  `PasswordHash` varchar(250) DEFAULT NULL,
+  `ResponseHash` varchar(250) DEFAULT NULL,
   `Confirm` varchar(64) DEFAULT NULL,
   `Active` tinyint(1) NOT NULL DEFAULT '0',
+  `Challenge` varchar(250) DEFAULT NULL,
+  `ResetChallenge` varchar(250) DEFAULT NULL,
+  `LastNonce` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Email_UNIQUE` (`Email`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 CREATE TABLE IF NOT EXISTS `sessions` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
@@ -22,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   UNIQUE KEY `Session_ID_UNIQUE` (`Session_ID`),
   KEY `user_idx` (`User_ID`),
   CONSTRAINT `user` FOREIGN KEY (`User_ID`) REFERENCES `users` (`ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `filemetadata` (
@@ -43,4 +47,4 @@ CREATE TABLE IF NOT EXISTS `filemetadata` (
   KEY `parent_idx` (`Parent`),
   KEY `Key_idx` (`Key_ID`),
   CONSTRAINT `FileOwner` FOREIGN KEY (`Owner`) REFERENCES `users` (`ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
