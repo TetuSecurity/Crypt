@@ -11,7 +11,14 @@ export class EncryptionService {
     return hash.digest('base64');
   }
 
-  encrypt(data, password){
+  encrypt(data, key){
+    var cipher = createCipher('aes256', key);
+    var encdata = cipher.update(data, null, 'base64');
+    encdata += cipher.final('base64');
+    return encdata;
+  }
+
+  encryptUpload(data, password){
     if(!Buffer.isBuffer(data)){
       data= new Buffer(data);
     }
@@ -25,7 +32,17 @@ export class EncryptionService {
     return {Data: encdata, Key: enckey};
   }
 
-  decrypt(encobj, password){
+  decrypt(enc, key){
+    var data;
+    try{
+      var datadecipher = createDecipher('aes256', key);
+      data = datadecipher.update(enc, 'base64');
+      data =  Buffer.concat([data, datadecipher.final()]);
+    }
+    return data;
+  }
+
+  decryptDownload(encobj, password){
     var keydecipher = createDecipher('aes256', password);
     var key = keydecipher.update(encobj.Key, 'base64');
     key = Buffer.concat([key, keydecipher.final()]);

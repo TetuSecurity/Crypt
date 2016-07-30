@@ -37,10 +37,10 @@ export class AuthService {
 
   signup(email:string, password:string){
     let that = this;
-    this.http.post('/api/auth/signup', {Email:email, Password:password}).subscribe(function(res:Response){
+    this.http.post('/api/auth/signup', {Email:email}).subscribe(function(res:Response){
       let body = res.json();
       if(body.Success){
-        that.router.navigateByUrl('/');
+        that.router.navigateByUrl('/emailsent');
       }
       else{
         console.log(body.Error);
@@ -50,29 +50,43 @@ export class AuthService {
 
   login(email:string, password:string, remember:boolean){
     let that = this;
-    this.http.post('/api/auth/login', {Email:email, Password:password, Remember:remember}).subscribe(function(res:Response){
+    this.http.post('/api/auth/login', {Email:email}).subscribe(function(res:Response){
       let body = res.json();
       if(body.Success){
-        that.user = new User(email);
-        that.router.navigateByUrl('/');
+        var challenge = body.Challenge;
+        var nonce = body.Nonce;
+        let keyPromise = that.encSvc.generateKey(password, password);
+        keyPromise.then(function(key){
+          that.key = key;
+          var response = that.encSvc.decrypt(challenge, key);
+          if(!response){
+            console.log('decryption error!');
+            return;
+          }
+          else{
+            var encrypted_response = that.encSvc.encrypt(response, nonce);
+            that.http.post('/api/auth/login/2', {Email:email, Response: encrypted_response}).subscribe(function(res:Response){
+              let body = res.json();
+              if(body.Success){
+                that.user = new User(body.User);
+                return;
+              }
+              else{
+                console.log(body.Error);
+                return;
+              }
+            });
+          }
+        }, function(err){
+          console.log(err);
+          return;
+        });
       }
       else{
         console.log(body.Error);
+        return;
       }
     });
-    /*
-    let keyPromise = this.encSvc.generateKey(password, salt);
-    console.log('got a promise!')
-    this.router.navigateByUrl('/');
-    keyPromise.then(function(key){
-      console.log('key generated!');
-      that.key = key;
-      console.log(that.key);
-    }, function(err){
-      console.log(err);
-      //notify of error and force re-login
-    });
-    */
   }
 
   logout(){
