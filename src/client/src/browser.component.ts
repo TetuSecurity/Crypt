@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { EncryptionService } from './services/encryption.service';
 
@@ -50,6 +51,7 @@ export class BrowserComponent implements OnInit{
 
   constructor(
     private http: Http,
+    private router: Router,
     private authSvc:AuthService,
     private encSvc:EncryptionService
   ) {
@@ -68,7 +70,9 @@ export class BrowserComponent implements OnInit{
   }
 
   ngOnInit(){
-    this.authSvc.checkCreds();
+    if(!this.authSvc.isLoggedIn()){
+      this.router.navigate(['/login']);
+    }
   }
 
   getFiles(parentID:number, callback){

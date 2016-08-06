@@ -35,7 +35,7 @@ router.post('/signup', function(req, res){
       var iq = 'Insert into `users` (`Email`, `Confirm`, `Active`) VALUES (?, ?, 0);';
       conn.query(iq, [body.Email, confirmation], function(err){
         if(err){
-          if(err.code == 'ER_DUP_KEY'){
+          if(err.code == 'ER_DUP_KEY' || err.code == 'ER_DUP_ENTRY'){
             conn.rollback(function(){
               conn.release();
               return res.send({Success: false, Error:'User with that email already exists!'});
@@ -83,6 +83,7 @@ router.post('/signup', function(req, res){
 router.get('/confirm/:confirmkey/:nonce', function(req, res){
   var confirmkey = req.params.confirmkey;
   var nonce = req.params.nonce;
+  console.log('fetching challenge for cid', confirmkey);
   //Generate a challenge and store the expected response hashed
   var challenge = crypto.randomBytes(16).toString('base64');
   var salt = crypto.randomBytes(16).toString('base64');
@@ -201,7 +202,7 @@ router.post('/confirm/', function(req, res){
                     }
                     else{
                       conn.release();
-                      return res.redirect('/');
+                      return res.send({Success:true});
                     }
                   });
                 }
@@ -241,7 +242,7 @@ router.post('/login', function(req, res){
   });
 });
 
-router.post('/login/2', function(req, res){
+router.post('/login2', function(req, res){
   var body = req.body;
   if(!body || !body.Email || !body.Response){
     return res.send({Success: false, Error:'No info provided'});
