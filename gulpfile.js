@@ -81,7 +81,8 @@ function handleTsErrors(err){
 function bundle(watch){
 	var props = {debug:true};
 	var b = watch ? watchify(browserify(props)) : browserify(props);
-	b.add('src/client/src/main.ts').plugin(tsify, {target:'es5', project:'./tsconfig.json'});
+	b.add('src/client/src/main.ts')
+	.plugin(tsify, {target:'es5', project:'./tsconfig.json'});
 	function rebundle(){
 		b.bundle()
 		.on('error', handleTsErrors)
@@ -91,8 +92,8 @@ function bundle(watch){
 		.pipe(gulp.dest('./dist/client/app/'));
 	}
 	b.on('update', function() {
-		rebundle();
 		console.log('Rebundling...');
+		rebundle();
 	});
 	return rebundle();
 }

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const morgan = require('morgan');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -34,6 +35,8 @@ const app = express();
 global.jsonParser = bodyParser.json({limit:'100mb'});
 global.urlParser = bodyParser.urlencoded({ extended: true });
 app.use(cookieParser(global.config.Cookie.Secret));
+
+app.use(morgan('dev'));
 
 /*-------- API --------*/
 app.use('/api', require('./routes/api'));
