@@ -11,12 +11,17 @@ import { AppComponent } from './components/app.component';
 import { appRoutes } from './routes/main.routes';
 import { ConfirmResolver } from './resolvers/confirm.resolver';
 import { EncryptionService } from './services/encryption.service';
+import { AuthService } from './services/auth.service';
+import { LoggedInGuard, NotLoggedInGuard } from './guards/loggedin.guard';
 
 enableProdMode();
 
 bootstrap(AppComponent, [
+  LoggedInGuard,
+  NotLoggedInGuard,
   ConfirmResolver,
   EncryptionService,
+  AuthService,
   provideRouter(appRoutes),
   HTTP_PROVIDERS
 ]);

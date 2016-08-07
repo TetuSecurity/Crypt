@@ -3,10 +3,13 @@ import {RouterConfig} from '@angular/router';
 import {BrowserComponent} from '../components/browser.component';
 import {LoginComponent} from '../components/login.component';
 import {ConfirmComponent} from '../components/confirm.component';
+//resolvers
 import {ConfirmResolver} from '../resolvers/confirm.resolver';
+//guards
+import {LoggedInGuard, NotLoggedInGuard} from '../guards/loggedin.guard';
 
 export const appRoutes: RouterConfig = [
-  {path: '', component: BrowserComponent},
-  {path: 'login',  component: LoginComponent},
-  {path: 'confirm/:cid', component: ConfirmComponent, resolve:{ confData: ConfirmResolver}}
+  {path: '', component: BrowserComponent, canActivate:[LoggedInGuard]},
+  {path: 'login',  component: LoginComponent, canActivate:[NotLoggedInGuard]},
+  {path: 'confirm/:cid', component: ConfirmComponent, canActivate:[NotLoggedInGuard], resolve:{ confData: ConfirmResolver}}
 ];

@@ -11,11 +11,9 @@ export class AuthService {
   constructor(
     private http:Http,
     private encSvc:EncryptionService
-  ){
-      this.checkCreds().subscribe(x=>console.log(x?'Resuming Session':'Unknown session'));
-  }
+  ){}
 
-  private checkCreds():Observable<boolean>{
+  checkCreds():Observable<boolean>{
     return this.http.get('/api/auth/')
     .map((res:Response) => res.json())
     .do( _ => {
@@ -23,7 +21,8 @@ export class AuthService {
           this.user = _.User;
         }
       })
-    .map(_ => _.Success);
+    .map(_ => _.Success)
+    .do(x => console.log(x?'Resuming Session':'Unknown session'));
   }
 
   isLoggedIn():boolean{
