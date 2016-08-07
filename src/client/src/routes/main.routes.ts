@@ -1,8 +1,8 @@
 import {RouterConfig} from '@angular/router';
-import {BrowserComponent} from '../browser.component';
-import {LoginComponent} from '../login.component';
-import {ConfirmComponent} from '../confirm.component';
-
+//components
+import {BrowserComponent} from '../components/browser.component';
+import {LoginComponent} from '../components/login.component';
+import {ConfirmComponent} from '../components/confirm.component';
 import {ConfirmResolver} from '../resolvers/confirm.resolver';
 
 export const appRoutes: RouterConfig = [

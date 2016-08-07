@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { AuthService } from './services/auth.service';
-import { EncryptionService } from './services/encryption.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { EncryptionService } from '../services/encryption.service';
 
 @Component({
   selector: 'login',
-  templateUrl: './login.component.html'
+  templateUrl: '../templates/login.component.html'
 })
 export class LoginComponent {
   email:string;
@@ -16,7 +17,8 @@ export class LoginComponent {
 
   constructor(
     private authSvc:AuthService,
-    private encSvc:EncryptionService
+    private encSvc:EncryptionService,
+    private router:Router
   ){ }
 
   signup():void{
@@ -43,6 +45,7 @@ export class LoginComponent {
           this.authSvc.login(encdata, this.email, this.remember)
           .subscribe(_=>{
             this.loading=false;
+            this.router.navigate(['/']);
           }, (err)=> console.log(err));
         });
       }

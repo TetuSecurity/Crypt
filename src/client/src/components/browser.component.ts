@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Router } from '@angular/router';
-import { AuthService } from './services/auth.service';
-import { EncryptionService } from './services/encryption.service';
+import { AuthService } from '../services/auth.service';
+import { EncryptionService } from '../services/encryption.service';
 
 export class File{
   Name: string;
@@ -38,7 +38,7 @@ function mapFiles(ifile):File{
   selector: 'file-browser',
   templateUrl: 'templates/browser.component.html'
 })
-export class BrowserComponent implements OnInit{
+export class BrowserComponent{
   files: File[];
   currentSort = {
     Field:undefined,
@@ -67,12 +67,6 @@ export class BrowserComponent implements OnInit{
         that.sortBy('LastModified');
       }
     });
-  }
-
-  ngOnInit(){
-    if(!this.authSvc.isLoggedIn()){
-      this.router.navigate(['/login']);
-    }
   }
 
   getFiles(parentID:number, callback){
