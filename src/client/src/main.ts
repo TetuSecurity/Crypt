@@ -6,22 +6,22 @@ import 'zone.js/dist/long-stack-trace-zone';
 import { bootstrap } from '@angular/platform-browser-dynamic';
 import { enableProdMode } from '@angular/core';
 import { HTTP_PROVIDERS } from '@angular/http';
-import { provideRouter, RouterConfig } from '@angular/router';
 import { AppComponent } from './components/app.component';
-import { appRoutes } from './routes/main.routes';
+
+import { ROUTE_PROVIDERS } from './routes';
+import { SERVICE_PROVIDERS } from './services';
+import { GUARD_PROVIDERS } from './guards';
 import { ConfirmResolver } from './resolvers/confirm.resolver';
-import { EncryptionService } from './services/encryption.service';
-import { AuthService } from './services/auth.service';
-import { LoggedInGuard, NotLoggedInGuard } from './guards/loggedin.guard';
 
 enableProdMode();
 
+var PROVIDERS = []
+  .concat(SERVICE_PROVIDERS)
+  .concat(GUARD_PROVIDERS)
+  .concat(ROUTE_PROVIDERS);
+
 bootstrap(AppComponent, [
-  LoggedInGuard,
-  NotLoggedInGuard,
+  PROVIDERS,
   ConfirmResolver,
-  EncryptionService,
-  AuthService,
-  provideRouter(appRoutes),
   HTTP_PROVIDERS
 ]);
