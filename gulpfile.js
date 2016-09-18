@@ -1,14 +1,15 @@
-var gulp        = require('gulp');
-var install     = require('gulp-install');
-var realFavicon = require('gulp-real-favicon');
-var source 		= require('vinyl-source-stream');
-var buffer      = require('vinyl-buffer');
-var browserify  = require('browserify');
-var watchify 	= require('watchify');
-var uglify      = require('gulp-uglify');
-var tsify       = require('tsify');
-var fs          = require('fs');
-var FAVICON_DATA_FILE = 'faviconData.json';
+const gulp        = require('gulp');
+const install     = require('gulp-install');
+const realFavicon = require('gulp-real-favicon');
+const source 			= require('vinyl-source-stream');
+const buffer      = require('vinyl-buffer');
+const browserify  = require('browserify');
+const watchify 		= require('watchify');
+const uglify      = require('gulp-uglify');
+const tsify       = require('tsify');
+const fs          = require('fs');
+const tsconfig 		= require('./tsconfig.json');
+const FAVICON_DATA_FILE = 'faviconData.json';
 
 gulp.task('generate-favicon', function(done) {
 	realFavicon.generateFavicon({
@@ -82,13 +83,13 @@ function bundle(watch){
 	var props = {debug:true};
 	var b = watch ? watchify(browserify(props)) : browserify(props);
 	b.add('src/client/src/main.ts')
-	.plugin(tsify, {target:'es5', project:'./tsconfig.json'});
+	.plugin(tsify, tsconfig);
 	function rebundle(){
 		b.bundle()
 		.on('error', handleTsErrors)
 		.pipe(source('main.min.js'))
-		//.pipe(buffer())
-		//.pipe(uglify())
+		.pipe(buffer())
+		.pipe(uglify())
 		.pipe(gulp.dest('./dist/client/app/'));
 	}
 	b.on('update', function() {
