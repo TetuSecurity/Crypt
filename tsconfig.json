@@ -5,18 +5,16 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": false
   },
   "exclude": [
     "dist",
     "node_modules",
     "src/client/node_modules",
     "node_modules/**",
-    "typings",
-    "typings/**",
-    "src/client/node_modules/**",
-    "src/client/typings",
-    "src/client/typings/**"
+    "src/client/node_modules/**"
   ],
   "compileOnSave": false
 }
