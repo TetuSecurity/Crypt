@@ -12,9 +12,11 @@
     "node_modules",
     "src/client/node_modules",
     "node_modules/**",
+    "typings",
+    "typings/**",
     "src/client/node_modules/**",
-    "src/client/typings/main",
-    "src/client/typings/main.d.ts"
+    "src/client/typings",
+    "src/client/typings/**"
   ],
   "compileOnSave": false
 }
