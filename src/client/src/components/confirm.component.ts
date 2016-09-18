@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { EncryptionService } from '../services/encryption.service';
+import {Component} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {AuthService} from '../services/auth.service';
+import {EncryptionService} from '../services/encryption.service';
 
 @Component({
   selector: 'confirmation',

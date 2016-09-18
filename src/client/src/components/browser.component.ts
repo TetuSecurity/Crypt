@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { EncryptionService } from '../services/encryption.service';
+import {Component, OnInit} from '@angular/core';
+import {Http, Response} from '@angular/http';
+import {Router} from '@angular/router';
+import {AuthService} from '../services/auth.service';
+import {EncryptionService} from '../services/encryption.service';
 
 export class File{
   Name: string;

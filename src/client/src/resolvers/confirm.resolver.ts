@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
-import { Observable } from 'rxjs/Rx';
-import { EncryptionService } from '../services/encryption.service';
+import {Injectable} from '@angular/core';
+import {Http, Response} from '@angular/http';
+import {Resolve, ActivatedRouteSnapshot} from '@angular/router';
+import {Observable} from 'rxjs/Rx';
+import {EncryptionService} from '../services/encryption.service';
 
 @Injectable()
 export class ConfirmResolver implements Resolve<any> {

@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs';
-import { EncryptionService } from './encryption.service';
+import {Injectable} from '@angular/core';
+import {Http, Response} from '@angular/http';
+import {Observable} from 'rxjs';
+import {EncryptionService} from './encryption.service';
 
 @Injectable()
 export class AuthService {

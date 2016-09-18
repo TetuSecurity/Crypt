@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Observable, Observer } from 'rxjs';
-import { createHash, randomBytes, createCipher, createDecipher, pbkdf2 } from 'crypto';
+import {Injectable} from '@angular/core';
+import {Observable, Observer} from 'rxjs';
+import {createHash, randomBytes, createCipher, createDecipher, pbkdf2} from 'crypto';
 
 @Injectable()
 export class EncryptionService {
