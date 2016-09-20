@@ -10,18 +10,18 @@
       </div>
       <div class="panel-body">
         <div class="row">
-          <div class="col-xs-10 col-xs-offset-1">
+          <div class="col-xs-10 col-xs-offset-1 text-center">
             <h1>Log In</h1>
           </div>
         </div>
         <div class="row">
           <div class="col-xs-8 col-xs-offset-2">
             <form name="authform" (submit)="loggingIn?logIn():signup()">
-              <input type="email" class="form-control" placeholder="Email" [(ngModel)]="email" required>
-              <input type="password" class="form-control" placeholder="Password" [(ngModel)]="password" required *ngIf="loggingIn">
+              <input name="username" type="email" class="form-control" placeholder="Email" [(ngModel)]="email" required>
+              <input name="password" type="password" class="form-control" placeholder="Password" [(ngModel)]="password" required *ngIf="loggingIn">
               <hr>
               <a href="javascript:void(0)" (click)="loggingIn=!loggingIn">{{loggingIn?'Sign up instead':'Log in instead'}}</a>
-              <button type="submit" class="btn btn-success">{{loggingIn?'Log In':'Sign Up'}}</button>
+              <button type="submit" class="btn btn-success pull-right">{{loggingIn?'Log In':'Sign Up'}}</button>
             </form>
           </div>
         </div>
