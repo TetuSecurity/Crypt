@@ -8,37 +8,57 @@ const watchify 		= require('watchify');
 const uglify      = require('gulp-uglify');
 const tsify       = require('tsify');
 const fs          = require('fs');
+const gulpTypings = require("gulp-typings");
 const tsconfig 		= require('./tsconfig.json');
 const FAVICON_DATA_FILE = 'faviconData.json';
 
 gulp.task('generate-favicon', function(done) {
 	realFavicon.generateFavicon({
-		masterPicture: './crypt.png',
+		masterPicture: './crypt.svg',
 		dest: 'dist/client/favicons',
 		iconsPath: '/favicons',
 		design: {
 			ios: {
 				pictureAspect: 'backgroundAndMargin',
 				backgroundColor: '#352f2f',
-				margin: '21%'
+				margin: '14%',
+				assets: {
+					ios6AndPriorIcons: false,
+					ios7AndLaterIcons: false,
+					precomposedIcons: false,
+					declareOnlyDefaultIcon: true
+				},
+				appName: 'Crypt'
 			},
 			desktopBrowser: {},
 			windows: {
 				pictureAspect: 'noChange',
 				backgroundColor: '#352f2f',
-				onConflict: 'override'
+				onConflict: 'override',
+				assets: {
+					windows80Ie10Tile: false,
+					windows10Ie11EdgeTiles: {
+						small: false,
+						medium: true,
+						big: false,
+						rectangle: false
+					}
+				},
+				appName: 'Crypt'
 			},
 			androidChrome: {
-				pictureAspect: 'backgroundAndMargin',
-				margin: '17%',
-				backgroundColor: '#352f2f',
-				themeColor: '#ffffff',
+				pictureAspect: 'noChange',
+				themeColor: '#352f2f',
 				manifest: {
 					name: 'Crypt',
-					display: 'browser',
+					display: 'standalone',
 					orientation: 'notSet',
 					onConflict: 'override',
 					declared: true
+				},
+				assets: {
+					legacyIcon: false,
+					lowResolutionIcons: false
 				}
 			},
 			safariPinnedTab: {
@@ -50,6 +70,10 @@ gulp.task('generate-favicon', function(done) {
 			compression: 5,
 			scalingAlgorithm: 'Cubic',
 			errorOnImageTooSmall: false
+		},
+		versioning: {
+			paramName: 'v',
+			paramValue: 'vMroeOKLRG'
 		},
 		markupFile: FAVICON_DATA_FILE
 	}, function() {
@@ -88,8 +112,8 @@ function bundle(watch){
 		b.bundle()
 		.on('error', handleTsErrors)
 		.pipe(source('main.min.js'))
-		.pipe(buffer())
-		.pipe(uglify())
+		// .pipe(buffer())
+		// .pipe(uglify())
 		.pipe(gulp.dest('./dist/client/app/'));
 	}
 	b.on('update', function() {
@@ -99,11 +123,11 @@ function bundle(watch){
 	return rebundle();
 }
 
-gulp.task('browserify', ['install_client'], function(){
+gulp.task('browserify', ['install_client', 'install_typings'], function(){
 	return bundle(false);
 });
 
-gulp.task('watchify', ['install_client'], function(){
+gulp.task('watchify', ['install_client', 'install_typings'], function(){
 	return bundle(true);
 });
 
@@ -137,8 +161,13 @@ gulp.task('install_client', function(){
     .pipe(install({production:true, ignoreScripts:true}));
 });
 
+gulp.task('install_typings', function(){
+	return gulp.src("./typings.json")
+  	.pipe(gulpTypings());
+});
+
 gulp.task('copy', ['copy_node', 'copy_client_root', 'copy_templates', 'copy_bootstrap']);
-gulp.task('install', ['install_api', 'install_client']);
+gulp.task('install', ['install_api', 'install_client', 'install_typings']);
 
 gulp.task('watch', function(){
   console.log('watching for changes...');
