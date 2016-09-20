@@ -12,7 +12,7 @@ export class LoggedInGuard implements CanActivate {
     return this.authService.checkCreds()
     .do(loggedIn=>{
       if(!loggedIn){
-        this.router.navigate(['login']);
+        this.router.navigate(['/login']);
       }
     });
   }
@@ -28,6 +28,6 @@ export class NotLoggedInGuard implements CanActivate {
       if(loggedIn){
         this.router.navigate(['/']);
       }
-    });
+    }).map(x => !x);
   }
 }
