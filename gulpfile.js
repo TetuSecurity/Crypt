@@ -112,8 +112,8 @@ function bundle(watch){
 		b.bundle()
 		.on('error', handleTsErrors)
 		.pipe(source('main.min.js'))
-		// .pipe(buffer())
-		// .pipe(uglify())
+		.pipe(buffer())
+		.pipe(uglify())
 		.pipe(gulp.dest('./dist/client/app/'));
 	}
 	b.on('update', function() {
@@ -175,7 +175,6 @@ gulp.task('watch', function(){
   gulp.watch(['./crypt.png'], ['inject-favicon-markups']);
   gulp.watch(['src/**/*', '!src/client/**/*'], ['copy_node']);
   gulp.watch(['./package.json'], ['install_api']);
-  //gulp.watch(['src/client/package.json', 'src/client/src/**/*.ts'], ['install_client', 'browserify']);
 	return bundle(true);
 });
 
