@@ -1,16 +1,15 @@
-const gulp        = require('gulp');
-const install     = require('gulp-install');
-const realFavicon = require('gulp-real-favicon');
-const source 			= require('vinyl-source-stream');
-const buffer      = require('vinyl-buffer');
-const browserify  = require('browserify');
+const gulp        	= require('gulp');
+const install     	= require('gulp-install');
+const realFavicon 	= require('gulp-real-favicon');
+const source 		= require('vinyl-source-stream');
+const buffer      	= require('vinyl-buffer');
+const browserify  	= require('browserify');
 const watchify 		= require('watchify');
-const uglify      = require('gulp-uglify');
-const tsify       = require('tsify');
-const fs          = require('fs');
-const gulpTypings = require("gulp-typings");
+const uglify      	= require('gulp-uglify');
+const tsify       	= require('tsify');
+const fs          	= require('fs');
 const tsconfig 		= require('./tsconfig.json');
-const FAVICON_DATA_FILE = 'faviconData.json';
+const FAVICON_FILE 	= 'faviconData.json';
 
 gulp.task('generate-favicon', function(done) {
 	realFavicon.generateFavicon({
@@ -75,7 +74,7 @@ gulp.task('generate-favicon', function(done) {
 			paramName: 'v',
 			paramValue: 'vMroeOKLRG'
 		},
-		markupFile: FAVICON_DATA_FILE
+		markupFile: FAVICON_FILE
 	}, function() {
 		done();
 	});
@@ -83,12 +82,12 @@ gulp.task('generate-favicon', function(done) {
 
 gulp.task('inject-favicon-markups', ['generate-favicon', 'copy_client_root'],function() {
 	gulp.src('dist/client/index.html')
-		.pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(FAVICON_DATA_FILE)).favicon.html_code))
+		.pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(FAVICON_FILE)).favicon.html_code))
 		.pipe(gulp.dest('dist/client/'));
 });
 
 gulp.task('check-for-favicon-update', function(done) {
-	var currentVersion = JSON.parse(fs.readFileSync(FAVICON_DATA_FILE)).version;
+	var currentVersion = JSON.parse(fs.readFileSync(FAVICON_FILE)).version;
 	realFavicon.checkForUpdates(currentVersion, function(err) {
 		if (err) {
 			throw err;
@@ -123,11 +122,11 @@ function bundle(watch){
 	return rebundle();
 }
 
-gulp.task('browserify', ['install_client', 'install_typings'], function(){
+gulp.task('browserify', ['install_client'], function(){
 	return bundle(false);
 });
 
-gulp.task('watchify', ['install_client', 'install_typings'], function(){
+gulp.task('watchify', ['install_client'], function(){
 	return bundle(true);
 });
 
@@ -161,13 +160,8 @@ gulp.task('install_client', function(){
     .pipe(install({production:true, ignoreScripts:true}));
 });
 
-gulp.task('install_typings', function(){
-	return gulp.src("./typings.json")
-  	.pipe(gulpTypings());
-});
-
 gulp.task('copy', ['copy_node', 'copy_client_root', 'copy_templates', 'copy_bootstrap']);
-gulp.task('install', ['install_api', 'install_client', 'install_typings']);
+gulp.task('install', ['install_api', 'install_client']);
 
 gulp.task('watch', function(){
   console.log('watching for changes...');
