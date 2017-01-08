@@ -93,15 +93,14 @@ gulp.task('copy', ['copy_client_root', 'copy_bootstrap']);
 
 gulp.task('watch', function(){
   	console.log('watching for changes...');
-  	browserSync.init({
-        proxy: 'localhost:3000',
-		port: '3001'
-	});
 	gulp.watch(['src/client/**/*.html'], ['copy_client_root']);
   	gulp.watch(['./package.json'], ['install']);
   	gulp.watch(['./src/server/**/*.ts'], ['compile_node']);
   	gulp.watch(['./src/client/**/*'], ['browser-sync']);
-  	return;
+  	return browserSync.init({
+        proxy: 'localhost:3000',
+		port: '3001'
+	});
 });
 
 // Default Task

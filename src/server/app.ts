@@ -1,8 +1,8 @@
 import {join} from 'path';
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const express = require('express');
-const morgan = require('morgan');
+import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
+import * as morgan from 'morgan';
 
 require('dotenv').config();
 
@@ -11,7 +11,8 @@ const APP_CONFIG = {
   cookie_name: process.env.COOKIE_NAME || 'cookie_name',
   cookie_secret: process.env.COOKIE_SECRET || 'cookie_secret',
   port: process.env.NODE_PORT || 3000,
-  log_level: process.env.MORGAN_LOG_LEVEL || 'dev'
+  log_level: process.env.MORGAN_LOG_LEVEL || 'dev',
+  storage_key: process.env.STORAGE_KEY || 'storage_key'
 };
 
 const app = express();
@@ -34,6 +35,21 @@ app.get('/*', function(req, res){
 app.all('*', function(req, res){
   return res.status(404).send('404 UNKNOWN ROUTE');
 });
+
+/*
+* ADD SSL STUFF HERE
+*/
+// let server = app;
+// if('SSL' in global.config){
+//   var config = {
+//     key: fs.readFileSync(global.config.SSL.keyfile),
+//     cert: fs.readFileSync(global.config.SSL.certfile),
+//     ca: fs.readFileSync(global.config.SSL.chainfile)
+//   };
+//   const https = require('https');
+//   server = https.createServer(config, app);
+// }
+// server.listen(port);
 
 app.listen(APP_CONFIG.port);
 console.log('App started on port', APP_CONFIG.port);

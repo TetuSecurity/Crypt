@@ -1,20 +1,21 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs",
+    "module": "es2015",
     "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "outDir": "dist"
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
-    "dist",
     "node_modules",
-    "src/client/node_modules",
-    "node_modules/**",
-    "src/client/node_modules/**"
+    "dist"
   ],
   "compileOnSave": false
 }
