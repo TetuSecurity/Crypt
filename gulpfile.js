@@ -58,7 +58,7 @@ gulp.task('browserify', ['install'], function(){
 	return bundle(false);
 });
 
-gulp.task('watchify', ['install'], function(done){
+gulp.task('watchify', function(done){
 	bundle(true);
 	return done();
 });
@@ -71,12 +71,17 @@ gulp.task('browser-sync', ['watchify'], function(done) {
 gulp.task('compile_node', ['install'], function(){
 	return gulp.src('./src/server/**/*.ts')
 	.pipe(ts_project()).js
-	.pipe(gulp.dest('dist/server/'))
+	.pipe(gulp.dest('dist/server/'));
 });
 
 gulp.task('copy_client_root', function(){
-  return gulp.src(['src/client/index.html', 'src/client/styles.css'])
+  return gulp.src(['src/client/index.html', 'src/client/styles.css', 'src/client/assets/**/*'])
       .pipe(gulp.dest('dist/client/'));
+});
+
+gulp.task('copy_client_assets', function(){
+  return gulp.src(['src/client/assets/**/*'])
+      .pipe(gulp.dest('dist/client/assets'));
 });
 
 gulp.task('copy_bootstrap', ['install'], function(){
@@ -89,9 +94,9 @@ gulp.task('install', function(){
     .pipe(install({production:true, ignoreScripts:true}));
 });
 
-gulp.task('copy', ['copy_client_root', 'copy_bootstrap']);
+gulp.task('copy', ['copy_client_root', 'copy_client_assets', 'copy_bootstrap']);
 
-gulp.task('watch', function(){
+gulp.task('watch', ['default'], function(){
   	console.log('watching for changes...');
 	gulp.watch(['src/client/**/*.html'], ['copy_client_root']);
   	gulp.watch(['./package.json'], ['install']);

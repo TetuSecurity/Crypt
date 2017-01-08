@@ -1,3 +1,4 @@
+
 import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
@@ -6,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from '../components/app/component';
 import { DemoComponent } from '../components/demo/component';
+import { MainHeaderComponent } from '../components/header/main/component';
 
 @NgModule({
   imports: [
@@ -14,13 +16,14 @@ import { DemoComponent } from '../components/demo/component';
     FormsModule,
     RouterModule.forRoot(
       [
-        { path: '', component: DemoComponent },
+        { path: '', component: DemoComponent }
       ]
     )
   ],
   declarations: [
     AppComponent,
-    DemoComponent
+    DemoComponent,
+    MainHeaderComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

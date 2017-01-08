@@ -5,7 +5,8 @@
   "main": "dist/server/app.js",
   "scripts": {
     "test": "mocha",
-    "tsc": "node node_modules/typescript/bin/tsc"
+    "tsc": "node node_modules/typescript/bin/tsc",
+    "start": "node dist/server/app.js"
   },
   "repository": {
     "type": "git",
