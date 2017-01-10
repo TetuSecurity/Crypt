@@ -37,4 +37,5 @@ dist/
 faviconData.json
 .env
 .oldCode
+.vscode
 
