@@ -27,7 +27,7 @@ function write (filepath) {
     return concat(function (content) {        
         return file(path.basename(filepath), content, { src: true })
         .pipe(buffer())
-		.pipe(uglify({mangle: false}))
+		// .pipe(uglify({mangle: false}))
         .pipe(gulp.dest('dist/client'));
     });
 }
