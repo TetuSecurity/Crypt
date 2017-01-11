@@ -6,8 +6,9 @@ const uglify      	= require('gulp-uglify');
 const browserify  	= require('browserify');
 const watchify 		= require('watchify');
 const tsify       	= require('tsify');
-const stringify		= require('stringify');
-const sassify       = require('sassify');
+// const stringify		= require('stringify');
+// const sassify       = require('sassify');
+// const source        = require('vinyl-source-stream');
 const buffer      	= require('vinyl-buffer');
 const factorBundle 	= require('factor-bundle');
 const concat 		= require('concat-stream');
@@ -16,6 +17,8 @@ const path			= require('path');
 const browserSync 	= require('browser-sync').create();
 const client_tsc	= require('./src/client/tsconfig.json').compilerOptions;
 const ts_project	= ts.createProject('./src/server/tsconfig.json');
+
+const loaderify     = require('loaderify');
 
 function handleTsErrors(err){
 	if(typeof err != typeof ''){
@@ -28,7 +31,7 @@ function write (filepath) {
     return concat(function (content) {        
         return file(path.basename(filepath), content, { src: true })
         .pipe(buffer())
-		.pipe(uglify({mangle: false}))
+		// .pipe(uglify({mangle: false}))
         .pipe(gulp.dest('dist/client'));
     });
 }
@@ -48,12 +51,27 @@ function initBrowserify(watch, options) {
     return b;
 }
 
+function inject(contents, callback) {
+    return callback(null, '`'+contents+'`');
+}
+
 function bundle(bundler){
-    return bundler.transform(sassify, {
-        'auto-inject': true
-    })
-    .transform(stringify, {
-        appliesTo: { includeExtensions: ['.html'] }
+    return bundler
+    .transform(loaderify, {
+        loaders: [
+            {
+                Pattern: '**/*.html', 
+                Function: inject
+            },
+            {
+                Pattern: '**/*.scss', 
+                Function: inject
+            },
+            {
+                Pattern: '**/*.css', 
+                Function: inject
+            }
+        ]
     })
     .bundle()
     .pipe(write('common.min.js'));
@@ -61,7 +79,7 @@ function bundle(bundler){
 
 gulp.task('browserify', ['install'], function(done){
     var b = initBrowserify(false, {});    
-    return bundle(b).on('end', done);
+    return bundle(b).on('bundle', done);
 });
 
 gulp.task('watchify', function(){
