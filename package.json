@@ -62,13 +62,10 @@
     "gulp-uglify": "^1.5.4",
     "loaderify": "file:loaderify",
     "mocha": "^2.4.5",
-    "sassify": "^2.0.0",
-    "stringify": "^5.1.0",
     "tsify": "^1.0.9",
     "tslint": "^3.7.4",
     "typescript": "^2.1.4",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0"
   }
 }

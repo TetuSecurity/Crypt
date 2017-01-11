@@ -5,10 +5,8 @@ const file 			= require('gulp-file');
 const uglify      	= require('gulp-uglify');
 const browserify  	= require('browserify');
 const watchify 		= require('watchify');
+const loaderify     = require('loaderify');
 const tsify       	= require('tsify');
-// const stringify		= require('stringify');
-// const sassify       = require('sassify');
-// const source        = require('vinyl-source-stream');
 const buffer      	= require('vinyl-buffer');
 const factorBundle 	= require('factor-bundle');
 const concat 		= require('concat-stream');
@@ -17,8 +15,6 @@ const path			= require('path');
 const browserSync 	= require('browser-sync').create();
 const client_tsc	= require('./src/client/tsconfig.json').compilerOptions;
 const ts_project	= ts.createProject('./src/server/tsconfig.json');
-
-const loaderify     = require('loaderify');
 
 function handleTsErrors(err){
 	if(typeof err != typeof ''){
@@ -31,7 +27,7 @@ function write (filepath) {
     return concat(function (content) {        
         return file(path.basename(filepath), content, { src: true })
         .pipe(buffer())
-		// .pipe(uglify({mangle: false}))
+		.pipe(uglify({mangle: false}))
         .pipe(gulp.dest('dist/client'));
     });
 }
