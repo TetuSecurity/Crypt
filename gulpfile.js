@@ -123,9 +123,20 @@ gulp.task('compile_node', ['install'], function(){
 	.pipe(gulp.dest('dist/server/'));
 });
 
-gulp.task('copy_client_root', function(){
-  return gulp.src(['src/client/index.html', 'src/client/styles.css'])
-      .pipe(gulp.dest('dist/client/'));
+gulp.task('copy_client_root', ['copy_client_assets'], function(done){
+    gulp.src(['src/client/index.html'])
+    .pipe(gulp.dest('dist/client/'));
+
+    sass.render({
+        file: 'src/client/styles.scss',
+        outputStyle: 'compressed'
+    }, function(err, result){
+        if(err){
+            throw err;
+        }
+        fs.writeFileSync('dist/client/styles.css', result.css);
+        done();
+    });
 });
 
 gulp.task('copy_client_assets', function(){

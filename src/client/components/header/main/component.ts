@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 
 @Component({
     selector: 'main-header',
-    styles: [require('./styles.css')],
+    styles: [require('./styles.scss')],
     template: require('./template.html')
 })
 

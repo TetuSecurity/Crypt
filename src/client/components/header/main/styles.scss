@@ -22,24 +22,36 @@
     0% {transform: rotate(90deg) translateY(1px); transform-origin: 16px 17px;}
     100%  {transform: rotate(180deg) translateY(0); transform-origin: 16px 16px;}
 }
-.arrow #top{
-    animation: topright 0.3s linear 0s forwards;
+
+.arrow {
+    #top{
+        animation: topright 0.3s linear 0s forwards;
+    }
+    
+    #middle{
+        animation: middle 0.3s linear 0s forwards;
+    }
+
+    #bottom{
+        animation: bottomleft 0.3s linear 0s forwards;
+    }
 }
-.menu #top{
-    animation: topright2 0.3s linear 0s forwards;
+
+.menu {
+    #top{
+        animation: topright2 0.3s linear 0s forwards;
+    }
+
+    #middle {
+        animation: middle2 0.3s linear 0s forwards;
+    }
+
+    #bottom {
+        animation: bottomleft2 0.3s linear 0s forwards;
+    }
 }
-.arrow #middle{
-    animation: middle 0.3s linear 0s forwards;
-}
-.menu #middle {
-    animation: middle2 0.3s linear 0s forwards;
-}
-.arrow #bottom{
-    animation: bottomleft 0.3s linear 0s forwards;
-}
-.menu #bottom {
-    animation: bottomleft2 0.3s linear 0s forwards;
-}
+
+
 
 .hamburger-button, .hamburger-button:active, .hamburger-button:focus, .hamburger-button:hover{
     height: 42px;
