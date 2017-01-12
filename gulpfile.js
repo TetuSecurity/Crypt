@@ -12,6 +12,8 @@ const factorBundle 	= require('factor-bundle');
 const concat 		= require('concat-stream');
 const fs          	= require('fs');
 const path			= require('path');
+const sass          = require('node-sass');
+const minify        = require('minify');
 const browserSync 	= require('browser-sync').create();
 const client_tsc	= require('./src/client/tsconfig.json').compilerOptions;
 const ts_project	= ts.createProject('./src/server/tsconfig.json');
@@ -27,7 +29,7 @@ function write (filepath) {
     return concat(function (content) {        
         return file(path.basename(filepath), content, { src: true })
         .pipe(buffer())
-		// .pipe(uglify({mangle: false}))
+		//.pipe(uglify({mangle: false}))
         .pipe(gulp.dest('dist/client'));
     });
 }
@@ -47,8 +49,32 @@ function initBrowserify(watch, options) {
     return b;
 }
 
-function inject(contents, callback) {
+function inject(filelocation, contents, callback) {
     return callback(null, '`'+contents+'`');
+}
+
+function compileSass(filelocation, contents, callback){
+    sass.render({
+        file: filelocation,
+        outputStyle: 'compressed'
+    }, function(err, result){
+        if(err){
+            throw err;
+        }
+        return inject(null, result.css.toString(), callback);
+    });
+}
+
+function minifyFile(filelocation, contents, callback) {
+    if(contents.length < 1){
+        return inject(null, contents, callback);
+    }
+    minify(filelocation, function(err, data){
+        if(err){
+            throw err;
+        }
+        return inject(null, data, callback);
+    });
 }
 
 function bundle(bundler){
@@ -61,11 +87,11 @@ function bundle(bundler){
             },
             {
                 Pattern: '**/*.scss', 
-                Function: inject
+                Function: compileSass
             },
             {
                 Pattern: '**/*.css', 
-                Function: inject
+                Function: minifyFile
             }
         ]
     })
