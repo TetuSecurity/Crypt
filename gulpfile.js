@@ -49,6 +49,16 @@ function initBrowserify(watch, options) {
     return b;
 }
 
+function sassNodeModulesImporter(url, file, done){
+    // if it starts with a tilde, search in node_modules;
+    if (url.indexOf('~') === 0){
+        var nmPath = path.join(__dirname, 'node_modules', url.substring(1)||'');
+        return done({ file: nmPath });
+    } else {
+        return done({ file: url });
+    }
+}
+
 function inject(filelocation, contents, callback) {
     return callback(null, '`'+contents+'`');
 }
@@ -56,7 +66,8 @@ function inject(filelocation, contents, callback) {
 function compileSass(filelocation, contents, callback){
     sass.render({
         file: filelocation,
-        outputStyle: 'compressed'
+        outputStyle: 'compressed',
+        importer: sassNodeModulesImporter
     }, function(err, result){
         if(err){
             throw err;
@@ -129,12 +140,13 @@ gulp.task('copy_client_root', ['copy_client_assets'], function(done){
 
     sass.render({
         file: 'src/client/styles.scss',
-        outputStyle: 'compressed'
+        outputStyle: 'compressed',
+        importer: sassNodeModulesImporter
     }, function(err, result){
         if(err){
             throw err;
         }
-        fs.writeFileSync('dist/client/styles.css', result.css);
+        fs.writeFileSync('dist/client/styles.min.css', result.css);
         done();
     });
 });
@@ -144,17 +156,17 @@ gulp.task('copy_client_assets', function(){
       .pipe(gulp.dest('dist/client/assets'));
 });
 
-gulp.task('copy_bootstrap', ['install'], function(){
-	gulp.src(['!node_modules/bootstrap/dist/js/**','!node_modules/bootstrap/dist/js/','node_modules/bootstrap/dist/**'])
-	.pipe(gulp.dest('dist/client/lib'));
-});
+// gulp.task('copy_bootstrap', ['install'], function(){
+// 	gulp.src(['!node_modules/bootstrap/dist/js/**','!node_modules/bootstrap/dist/js/','node_modules/bootstrap/dist/**'])
+// 	.pipe(gulp.dest('dist/client/lib'));
+// });
 
 gulp.task('install', function(){
 	return gulp.src('./package.json')
     .pipe(install({production:true, ignoreScripts:true}));
 });
 
-gulp.task('copy', ['copy_client_root', 'copy_client_assets', 'copy_bootstrap']);
+gulp.task('copy', ['copy_client_root', 'copy_client_assets'/*,'copy_bootstrap'*/]);
 
 gulp.task('watch', ['copy', 'install', 'compile_node', 'watchify'], function(){
   	console.log('watching for changes...');
