@@ -64,7 +64,6 @@
     "gulp-uglify": "^2.0.0",
     "loaderify": "^0.1.0",
     "minify": "^2.0.13",
-    "mocha": "^2.4.5",
     "node-sass": "^4.2.0",
     "tsify": "^1.0.9",
     "tslint": "^3.7.4",

@@ -1,10 +1,10 @@
 import {Component} from '@angular/core';
 
 @Component({
-    selector: 'demo',
+    selector: 'home',
     template: require('./template.html'),
     styles: [require('./styles.scss')]
 })
-export class DemoComponent {
+export class HomeComponent {
   constructor() {}
 }

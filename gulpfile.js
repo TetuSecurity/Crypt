@@ -178,12 +178,17 @@ gulp.task('copy_client_assets', function(){
       .pipe(gulp.dest('dist/client/assets'));
 });
 
+gulp.task('copy_fonts', ['install', 'copy_client_assets'], function(){
+  return gulp.src(['node_modules/font-awesome/fonts/*', 'src/client/fonts/*'])
+      .pipe(gulp.dest('dist/client/fonts'));
+});
+
 gulp.task('install', function(){
 	return gulp.src('./package.json')
     .pipe(install({ignoreScripts:true}));
 });
 
-gulp.task('copy', ['copy_client_root', 'copy_client_assets']);
+gulp.task('copy', ['copy_client_root', 'copy_client_assets', 'copy_fonts']);
 
 gulp.task('watch', ['copy', 'install', 'compile_node', 'watchify'], function(){
   	console.log('watching for changes...');
@@ -191,7 +196,7 @@ gulp.task('watch', ['copy', 'install', 'compile_node', 'watchify'], function(){
         proxy: 'localhost:3000',
         port: '3001'
     });
-	gulp.watch(['src/client/*.*'], ['copy_client_root']);
+	gulp.watch(['src/client/**/*'], ['copy']);
   	return gulp.watch(['./package.json'], ['browserify']);
 });
 

@@ -38,14 +38,16 @@ module.exports = (APP_CONFIG) => {
         }
     });
 
-    router.use('/auth', require('./auth')(APP_CONFIG));
+    // router.use('/auth', require('./auth')(APP_CONFIG));
 
     router.use((req, res, next) => {
-        if (!res.locals.user) {
-            return res.status(401).send({Error: 'Unauthenticated!'});
-        } else {
-            return next();
-        }
+        // if (!res.locals.user) {
+        //     return res.status(401).send({Error: 'Unauthenticated!'});
+        // } else {
+        //     return next();
+        // }
+        res.locals.user = {ID: 1};
+        return next();
     });
 
     router.use('/files', require('./files')(APP_CONFIG));
