@@ -1,4 +1,6 @@
-
+// import common libs to force them in to the common file
+import 'jquery';
+import 'tether';
 import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';

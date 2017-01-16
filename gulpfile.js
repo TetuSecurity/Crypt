@@ -16,6 +16,7 @@ const sass          = require('node-sass');
 const minify        = require('minify');
 const browserSync 	= require('browser-sync').create();
 const client_tsc	= require('./src/client/tsconfig.json').compilerOptions;
+const server_tsc	= require('./src/server/tsconfig.json').compilerOptions;
 const ts_project	= ts.createProject('./src/server/tsconfig.json');
 
 function handleTsErrors(err){
@@ -25,12 +26,14 @@ function handleTsErrors(err){
 	console.error(err);
 }
 
-function write (filepath) {    
+function write (folder, filepath, crush) {  
     return concat(function (content) {        
-        return file(path.basename(filepath), content, { src: true })
-        .pipe(buffer())
-		//.pipe(uglify({mangle: false}))
-        .pipe(gulp.dest('dist/client'));
+        var f = file(path.basename(filepath), content, { src: true })
+        .pipe(buffer());
+        if(crush){
+            f = f.pipe(uglify());
+        }
+        return f.pipe(gulp.dest(folder));
     });
 }
 
@@ -45,7 +48,7 @@ function initBrowserify(watch, options) {
 	.add('src/client/vendor.ts')
 	.on('error', handleTsErrors)
 	.plugin(tsify, client_tsc)
-	.plugin(factorBundle, { outputs: [write('app.min.js'), write('vendor.min.js')]});
+	.plugin(factorBundle, { outputs: [write('dist/client', 'app.min.js'), write('dist/client', 'vendor.min.js', true)]});
     return b;
 }
 
@@ -107,8 +110,22 @@ function bundle(bundler){
         ]
     })
     .bundle()
-    .pipe(write('common.min.js'));
+    .pipe(write('dist/client', 'common.min.js', true));
 }
+
+gulp.task('serverify', ['install'], function(done){
+    var props = {
+        cache: {},
+        packageCache: {}
+    };
+    return browserify(props)
+    .add('src/server/app.ts')
+    .on('error', handleTsErrors)
+	.plugin(tsify, server_tsc)
+    .bundle()
+    .pipe(write('dist/server', 'app.min.js', true))
+    .on('bundle', done); 
+});
 
 gulp.task('browserify', ['install'], function(done){
     var b = initBrowserify(false, {});    
@@ -134,10 +151,15 @@ gulp.task('compile_node', ['install'], function(){
 	.pipe(gulp.dest('dist/server/'));
 });
 
-gulp.task('copy_client_root', ['copy_client_assets'], function(done){
-    gulp.src(['src/client/index.html'])
+gulp.task('copy_client_root', ['copy_client_assets', 'install'], function(done){
+    gulp.src(
+        [
+            'src/client/index.html', 
+            'node_modules/jquery/dist/jquery.min.js',
+            'node_modules/tether/dist/js/tether.min.js'
+        ]
+    )
     .pipe(gulp.dest('dist/client/'));
-
     sass.render({
         file: 'src/client/styles.scss',
         outputStyle: 'compressed',
@@ -156,17 +178,12 @@ gulp.task('copy_client_assets', function(){
       .pipe(gulp.dest('dist/client/assets'));
 });
 
-// gulp.task('copy_bootstrap', ['install'], function(){
-// 	gulp.src(['!node_modules/bootstrap/dist/js/**','!node_modules/bootstrap/dist/js/','node_modules/bootstrap/dist/**'])
-// 	.pipe(gulp.dest('dist/client/lib'));
-// });
-
 gulp.task('install', function(){
 	return gulp.src('./package.json')
-    .pipe(install({production:true, ignoreScripts:true}));
+    .pipe(install({ignoreScripts:true}));
 });
 
-gulp.task('copy', ['copy_client_root', 'copy_client_assets'/*,'copy_bootstrap'*/]);
+gulp.task('copy', ['copy_client_root', 'copy_client_assets']);
 
 gulp.task('watch', ['copy', 'install', 'compile_node', 'watchify'], function(){
   	console.log('watching for changes...');
@@ -174,9 +191,8 @@ gulp.task('watch', ['copy', 'install', 'compile_node', 'watchify'], function(){
         proxy: 'localhost:3000',
         port: '3001'
     });
-	gulp.watch(['src/client/**/*.html'], ['copy_client_root']);
-  	gulp.watch(['./package.json'], ['install']);
-  	return gulp.watch(['./src/server/**/*.ts'], ['compile_node']);
+	gulp.watch(['src/client/*.*'], ['copy_client_root']);
+  	return gulp.watch(['./package.json'], ['browserify']);
 });
 
 // Default Task
