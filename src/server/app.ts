@@ -3,8 +3,10 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as morgan from 'morgan';
+import * as compression from 'compression';
+import * as dotenv from 'dotenv';
 
-require('dotenv').config();
+dotenv.config();
 
 const APP_CONFIG = {
   environment: process.env.ENVIRONMENT || 'dev',
@@ -16,6 +18,8 @@ const APP_CONFIG = {
 };
 
 const app = express();
+
+app.use(compression());
 
 app.use(bodyParser.json({limit: '100mb'}));
 app.use(cookieParser(APP_CONFIG.cookie_secret));

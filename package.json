@@ -5,7 +5,9 @@
   "main": "dist/server/app.js",
   "scripts": {
     "test": "mocha",
-    "tsc": "node node_modules/typescript/bin/tsc",
+    "tsc-client": "node_modules/.bin/tsc -p src/client/tsconfig.json",
+    "tsc-server": "node_modules/.bin/tsc -p src/server/tsconfig.json",
+    "gulp": "node_modules/.bin/gulp",
     "start": "node dist/server/app.js"
   },
   "repository": {
@@ -27,10 +29,11 @@
     "@angular/platform-browser": "2.4.2",
     "@angular/platform-browser-dynamic": "2.4.2",
     "@angular/router": "3.4.2",
-    "@angular/upgrade": "^2.4.2",
+    "@angular/upgrade": "2.4.2",
     "async": "^1.5.2",
     "body-parser": "^1.15.2",
     "bootstrap": "^4.0.0-alpha.6",
+    "compression": "^1.6.2",
     "cookie-parser": "^1.4.1",
     "core-js": "^2.4.1",
     "dotenv": "^2.0.0",

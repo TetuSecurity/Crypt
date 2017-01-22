@@ -46,7 +46,7 @@ module.exports = (APP_CONFIG) => {
         // } else {
         //     return next();
         // }
-        res.locals.user = {ID: 1};
+        res.locals.user = {ID: 13};
         return next();
     });
 
