@@ -3,7 +3,7 @@
 @import './scss/_variables';
 @import './scss/type';
 
-body {
+html, body {
     min-width: $absolute-min;
 }
 

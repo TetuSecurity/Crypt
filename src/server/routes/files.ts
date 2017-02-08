@@ -1,16 +1,13 @@
-import {resolve} from 'path';
-import { Router } from 'express';
 import * as uuidv4 from 'uuid/v4';
 import * as crypto from 'crypto';
 import * as zlib from 'zlib';
-import { MysqlDatabase, LocalFileStore } from '../middleware';
+import {Router} from 'express';
 
 const router = Router();
-const db = new MysqlDatabase();
-const pool = db.createPool();
-const store = new LocalFileStore();
 
 module.exports = (APP_CONFIG) => {
+    const pool = APP_CONFIG.db.createPool();
+    const store = APP_CONFIG.file_store;
     /**
     * Saves Metadata of a file and returns a new endpoint for content upload
     **/

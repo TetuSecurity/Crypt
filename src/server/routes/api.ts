@@ -1,10 +1,9 @@
 import {Router} from 'express';
-import {MysqlDatabase} from '../middleware';
 const router = Router();
-const db = new MysqlDatabase();
-const pool = db.createPool();
 
 module.exports = (APP_CONFIG) => {
+    const pool = APP_CONFIG.db.createPool();
+
     router.use((req, res, next) => {
         if (!req.signedCookies || !req.signedCookies[APP_CONFIG.cookie_name]) {
             res.locals.user = null;
@@ -38,7 +37,7 @@ module.exports = (APP_CONFIG) => {
         }
     });
 
-    // router.use('/auth', require('./auth')(APP_CONFIG));
+    router.use('/auth', require('./auth')(APP_CONFIG));
 
     router.use((req, res, next) => {
         // if (!res.locals.user) {
@@ -46,7 +45,7 @@ module.exports = (APP_CONFIG) => {
         // } else {
         //     return next();
         // }
-        res.locals.user = {ID: 13};
+        res.locals.user = {ID: 1};
         return next();
     });
 

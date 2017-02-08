@@ -1,27 +1,36 @@
-import {join} from 'path';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as morgan from 'morgan';
 import * as compression from 'compression';
 import * as dotenv from 'dotenv';
+import { join } from 'path';
+import {
+    MysqlDatabase,
+    LocalFileStore,
+    EmailService
+} from './middleware';
 
 dotenv.config();
 
 const APP_CONFIG = {
-  environment: process.env.ENVIRONMENT || 'dev',
-  cookie_name: process.env.COOKIE_NAME || 'cookie_name',
-  cookie_secret: process.env.COOKIE_SECRET || 'cookie_secret',
-  port: process.env.NODE_PORT || 3000,
-  log_level: process.env.MORGAN_LOG_LEVEL || 'dev',
-  storage_key: process.env.STORAGE_KEY || 'storage_key'
+    environment: process.env.ENVIRONMENT || 'dev',
+    cookie_name: process.env.COOKIE_NAME || 'cookie_name',
+    cookie_secret: process.env.COOKIE_SECRET || 'cookie_secret',
+    port: process.env.NODE_PORT || 3000,
+    log_level: process.env.MORGAN_LOG_LEVEL || 'dev',
+    storage_key: process.env.STORAGE_KEY || 'storage_key',
+    verification_key: process.env.VERIFICATION_KEY || 'verification_key',
+    db: new MysqlDatabase(),
+    file_store: new LocalFileStore(),
+    emailer: new EmailService()
 };
 
 const app = express();
 
 app.use(compression());
 
-app.use(bodyParser.json({limit: '100mb'}));
+app.use(bodyParser.json({ limit: '100mb' }));
 app.use(cookieParser(APP_CONFIG.cookie_secret));
 
 app.use(morgan(APP_CONFIG.log_level));
@@ -33,11 +42,11 @@ app.use('/api', require('./routes/api')(APP_CONFIG));
 app.set('view engine', 'html');
 app.use(express.static(join(__dirname, '../client')));
 app.get('/*', (req, res) => {
-  return res.sendFile(join(__dirname, '../client/index.html'));
+    return res.sendFile(join(__dirname, '../client/index.html'));
 });
 
 app.all('*', (req, res) => {
-  return res.status(404).send('404 UNKNOWN ROUTE');
+    return res.status(404).send('404 UNKNOWN ROUTE');
 });
 
 /*
