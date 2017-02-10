@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 
 @Component({
     selector: 'login',
-    template: require('./template.html'),
-    styles: [require('./styles.scss')]
+    templateUrl: './template.html',
+    styleUrls: ['./styles.scss']
 })
 export class LoginComponent {
     processing: boolean = false;

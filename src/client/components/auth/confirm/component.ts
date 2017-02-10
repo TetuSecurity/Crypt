@@ -3,8 +3,8 @@ import {ActivatedRoute} from '@angular/router';
 
 @Component({
     selector: 'confirm-email',
-    template: require('./template.html'),
-    styles: [require('./styles.scss')]
+    templateUrl: './template.html',
+    styleUrls: ['./styles.scss']
 })
 export class ConfirmationComponent implements OnInit {
 

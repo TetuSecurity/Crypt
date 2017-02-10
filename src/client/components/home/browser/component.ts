@@ -5,8 +5,8 @@ import {INode, File, Directory, SortConfig} from '../../../models/files';
 
 @Component({
     selector: 'file-browser',
-    template: require('./template.html'),
-    styles: [require('./styles.scss')]
+    templateUrl: './template.html',
+    styleUrls: ['./styles.scss']
 })
 export class BrowserComponent implements OnInit {
     private files: INode[];

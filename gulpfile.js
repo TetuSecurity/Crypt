@@ -19,6 +19,8 @@ const client_tsc	= require('./src/client/tsconfig.json').compilerOptions;
 const server_tsc	= require('./src/server/tsconfig.json').compilerOptions;
 const ts_project	= ts.createProject('./src/server/tsconfig.json');
 
+const webpack       = require('webpack');
+
 function handleTsErrors(err){
 	if(typeof err != typeof ''){
 		err = JSON.stringify(err, null, 2);
@@ -200,5 +202,11 @@ gulp.task('watch', ['copy', 'install', 'compile_node', 'watchify'], function(){
   	return gulp.watch(['./package.json'], ['browserify']);
 });
 
+gulp.task('webpack', ['install'], function(done) {
+    return webpack(require('./webpack.config'), function(err){
+        return done(err);
+    });
+});
+
 // Default Task
-gulp.task('default', ['copy', 'install', 'compile_node', 'browserify']);
+gulp.task('default', ['copy', 'install', 'compile_node', 'webpack']);

@@ -52,7 +52,7 @@ module.exports = (APP_CONFIG) => {
                         let confirmHash = crypto.createHmac('sha512', APP_CONFIG.verification_key)
                             .update(confirmation)
                             .digest('hex');
-                        let confirmLink = `${req.protocol}://${req.hostname}/confirm/${confirmation}/${confirmHash}`;
+                        let confirmLink = `${req.protocol}://${req.hostname}/auth/confirm/${confirmation}/${confirmHash}`;
                         console.log(confirmLink);
                         let to: string = body.Email;
                         email.confirm_email(to, confirmLink, (emailerr) => {
