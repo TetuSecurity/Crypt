@@ -1,0 +1,62 @@
+<div class="row">
+    <div class="col-xs-12">
+        <p>
+            <span>
+                <a href="javascript:void(0)" style="display:inline;" (click)="navigateTo(null)">/</a>
+            </span>
+            <span *ngFor="let crumb of breadcrumbs">
+                <a href="javascript:void(0)" style="display:inline;" (click)="navigateTo(crumb)">{{crumb.Name}} /</a>
+            </span>
+        </p>
+    </div>
+</div>
+<div class="row">
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead class="thead-inverse">
+                <tr>
+                    <th class="col-xs-1">
+                        Icon
+                    </th>
+                    <th class="col-xs-6 clickable" (click)="sortBy('Name')">
+                        Filename
+                        <span class="fa fa-chevron-up" *ngIf="currentSort.Field=='Name' && currentSort.ASC"></span>
+                        <span class="fa fa-chevron-down" *ngIf="currentSort.Field=='Name' && !currentSort.ASC"></span>
+                        <span *ngIf="!currentSort.Field=='Name'"></span>
+                    </th>
+                    <th class="col-xs-4 clickable" (click)="sortBy('ModifiedDT')">
+                        Last Modified
+                        <span class="fa fa-chevron-up" *ngIf="currentSort.Field=='ModifiedDT' && currentSort.ASC"></span>
+                        <span class="fa fa-chevron-down" *ngIf="currentSort.Field=='ModifiedDT' && !currentSort.ASC"></span>
+                        <span *ngIf="!currentSort.Field=='ModifiedDT'"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="clickable" *ngIf="breadcrumbs.length>0" (click)="navigateTo(breadcrumbs[breadcrumbs.length-2])">
+                    <td>
+                        <span class="fa fa-folder-open"></span>
+                    </td>
+                    <td>
+                        Up one level
+                    </td>
+                    <td>
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr *ngFor="let file of files" class="clickable" (click)="diveIn(file)">
+                    <td>
+                        <span *ngIf="file.IsDirectory" class="fa fa-folder"></span>
+                        <span *ngIf="!file.IsDirectory" class="fa fa-file"></span>
+                    </td>
+                    <td>
+                        {{file.Name}}
+                    </td>
+                    <td>
+                        {{file.LastModified | date}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

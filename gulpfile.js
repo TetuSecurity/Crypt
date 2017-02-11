@@ -1,176 +1,96 @@
 const gulp        	= require('gulp');
-const install     	= require('gulp-install');
-const realFavicon 	= require('gulp-real-favicon');
-const source 		= require('vinyl-source-stream');
-const buffer      	= require('vinyl-buffer');
-const browserify  	= require('browserify');
-const watchify 		= require('watchify');
-const uglify      	= require('gulp-uglify');
-const tsify       	= require('tsify');
 const fs          	= require('fs');
-const tsconfig 		= require('./tsconfig.json');
-const FAVICON_FILE 	= 'faviconData.json';
+const path			= require('path');
+const sass          = require('node-sass');
+const webpack       = require('webpack');
+const webpackConfig = require('./webpack.config');
+const browserSync   = require('browser-sync-webpack-plugin');
+const ts_project	= require('gulp-typescript').createProject('./src/server/tsconfig.json');
 
-gulp.task('generate-favicon', function(done) {
-	realFavicon.generateFavicon({
-		masterPicture: './crypt.svg',
-		dest: 'dist/client/favicons',
-		iconsPath: '/favicons',
-		design: {
-			ios: {
-				pictureAspect: 'backgroundAndMargin',
-				backgroundColor: '#352f2f',
-				margin: '14%',
-				assets: {
-					ios6AndPriorIcons: false,
-					ios7AndLaterIcons: false,
-					precomposedIcons: false,
-					declareOnlyDefaultIcon: true
-				},
-				appName: 'Crypt'
-			},
-			desktopBrowser: {},
-			windows: {
-				pictureAspect: 'noChange',
-				backgroundColor: '#352f2f',
-				onConflict: 'override',
-				assets: {
-					windows80Ie10Tile: false,
-					windows10Ie11EdgeTiles: {
-						small: false,
-						medium: true,
-						big: false,
-						rectangle: false
-					}
-				},
-				appName: 'Crypt'
-			},
-			androidChrome: {
-				pictureAspect: 'noChange',
-				themeColor: '#352f2f',
-				manifest: {
-					name: 'Crypt',
-					display: 'standalone',
-					orientation: 'notSet',
-					onConflict: 'override',
-					declared: true
-				},
-				assets: {
-					legacyIcon: false,
-					lowResolutionIcons: false
-				}
-			},
-			safariPinnedTab: {
-				pictureAspect: 'silhouette',
-				themeColor: '#01cccc'
-			}
-		},
-		settings: {
-			compression: 5,
-			scalingAlgorithm: 'Cubic',
-			errorOnImageTooSmall: false
-		},
-		versioning: {
-			paramName: 'v',
-			paramValue: 'vMroeOKLRG'
-		},
-		markupFile: FAVICON_FILE
-	}, function() {
-		done();
-	});
-});
-
-gulp.task('inject-favicon-markups', ['generate-favicon', 'copy_client_root'],function() {
-	gulp.src('dist/client/index.html')
-		.pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(FAVICON_FILE)).favicon.html_code))
-		.pipe(gulp.dest('dist/client/'));
-});
-
-gulp.task('check-for-favicon-update', function(done) {
-	var currentVersion = JSON.parse(fs.readFileSync(FAVICON_FILE)).version;
-	realFavicon.checkForUpdates(currentVersion, function(err) {
-		if (err) {
-			throw err;
-		}
-	});
-});
-
-function handleTsErrors(err){
-	if(typeof err != typeof ''){
-		err = JSON.stringify(err, null, 2);
-	}
-	console.error(err);
+function sassNodeModulesImporter(url, file, done){
+    // if it starts with a tilde, search in node_modules;
+    if (url.indexOf('~') === 0){
+        var nmPath = path.join(__dirname, 'node_modules', url.substring(1)||'');
+        return done({ file: nmPath });
+    } else {
+        return done({ file: url });
+    }
 }
 
-function bundle(watch){
-	var props = {debug:true};
-	var b = watch ? watchify(browserify(props)) : browserify(props);
-	b.add('src/client/src/main.ts')
-	.plugin(tsify, tsconfig);
-	function rebundle(){
-		b.bundle()
-		.on('error', handleTsErrors)
-		.pipe(source('main.min.js'))
-		.pipe(buffer())
-		.pipe(uglify())
-		.pipe(gulp.dest('./dist/client/app/'));
-	}
-	b.on('update', function() {
-		console.log('Rebundling...');
-		rebundle();
-	});
-	return rebundle();
-}
-
-gulp.task('browserify', ['install_client'], function(){
-	return bundle(false);
+gulp.task('compile_node', function(){
+	return gulp.src('./src/server/**/*.ts')
+	.pipe(ts_project()).js
+	.pipe(gulp.dest('dist/server/'));
 });
 
-gulp.task('watchify', ['install_client'], function(){
-	return bundle(true);
+gulp.task('copy_client_root', ['copy_client_assets'], function(done){
+    gulp.src('src/client/index.html')
+    .pipe(gulp.dest('dist/client/'));
+
+    sass.render({
+        file: 'src/client/styles.scss',
+        outputStyle: 'compressed',
+        importer: sassNodeModulesImporter
+    }, function(err, result){
+        if(err){
+            throw err;
+        }
+        fs.writeFileSync('dist/client/styles.min.css', result.css);
+        return done();
+    });
 });
 
-gulp.task('copy_templates', function(){
-  return gulp.src(['src/client/templates/*.html'])
-      .pipe(gulp.dest('dist/client/templates'));
+gulp.task('copy_client_assets', function(){
+  return gulp.src(['src/client/assets/**/*'])
+      .pipe(gulp.dest('dist/client/assets'));
 });
 
-gulp.task('copy_client_root', function(){
-  return gulp.src(['src/client/index.html'])
-      .pipe(gulp.dest('dist/client/'));
+gulp.task('copy_fonts', ['copy_client_assets'], function(){
+  return gulp.src(['node_modules/font-awesome/fonts/*', 'src/client/fonts/*'])
+      .pipe(gulp.dest('dist/client/fonts'));
 });
 
-gulp.task('copy_node', function(){
-  return gulp.src(['src/**/*', '!src/client/**/*', './package.json', '!./node_modules', '!./config.json'])
-      .pipe(gulp.dest('dist/'));
+gulp.task('webpack', function(done) {
+    let config = webpackConfig;
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin()
+    );
+    return webpack(config, function(err){
+        if (err) {
+            console.log(err);
+        }
+        return done(err);
+    });
 });
 
-gulp.task('copy_bootstrap', ['install_client'], function(){
-	gulp.src(['!src/client/node_modules/bootstrap/dist/js/**','!src/client/node_modules/bootstrap/dist/js/','src/client/node_modules/bootstrap/dist/**'])
-	.pipe(gulp.dest('dist/client/lib'));
+gulp.task('webpack-watch', function() {
+    let config = webpackConfig;
+    config.watch = true;
+    config.cache = true;
+    config.bail = false;
+    config.plugins.push(
+        new browserSync({
+            host: 'localhost',
+            port: 3001,
+            proxy: 'localhost:3000'
+        })
+    );
+    webpack(config, function(err, stats) {
+        if (err) {
+            console.log(err);
+        }
+    });
 });
 
-gulp.task('install_api', ['copy_node'], function(){
-  return gulp.src('dist/package.json')
-    .pipe(install({production:true, ignoreScripts:true}));
-});
+gulp.task('copy', ['copy_client_root', 'copy_client_assets', 'copy_fonts']);
 
-gulp.task('install_client', function(){
-  return gulp.src('src/client/package.json')
-    .pipe(install({production:true, ignoreScripts:true}));
-});
-
-gulp.task('copy', ['copy_node', 'copy_client_root', 'copy_templates', 'copy_bootstrap']);
-gulp.task('install', ['install_api', 'install_client']);
-
-gulp.task('watch', function(){
-  console.log('watching for changes...');
-  gulp.watch(['src/client/**/*.html'], ['copy_client_root', 'copy_templates']);
-  gulp.watch(['./crypt.png'], ['inject-favicon-markups']);
-  gulp.watch(['src/**/*', '!src/client/**/*'], ['copy_node']);
-  gulp.watch(['./package.json'], ['install_api']);
-	return bundle(true);
+gulp.task('watch', ['copy', 'compile_node', 'webpack-watch'], function(){
+  	console.log('watching for changes...');
+	gulp.watch(['src/client/assets/**/*'], ['copy_client_assets']);
+	gulp.watch(['src/client/index.html', 'src/client/styles.scss', 'src/client/scss/*.scss'], ['copy_client_root']);
+	gulp.watch(['node_modules/font-awesome/fonts/*', 'src/client/fonts/*'], ['copy_fonts']);
+	gulp.watch(['src/server/**/*.ts'], ['compile_node']);
 });
 
 // Default Task
-gulp.task('default', ['copy', 'inject-favicon-markups', 'install', 'browserify']);
+gulp.task('default', ['copy', 'compile_node', 'webpack']);
