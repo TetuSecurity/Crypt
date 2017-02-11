@@ -204,6 +204,9 @@ gulp.task('watch', ['copy', 'install', 'compile_node', 'watchify'], function(){
 
 gulp.task('webpack', ['install'], function(done) {
     return webpack(require('./webpack.config'), function(err){
+        if (err) {
+            console.log(err);
+        }
         return done(err);
     });
 });

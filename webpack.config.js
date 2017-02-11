@@ -1,4 +1,9 @@
 var path = require('path');
+var webpack = require('webpack');
+var commonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
+var providePlugin = webpack.ProvidePlugin;
+var uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
+var dedupePlugin = webpack.optimize.DedupePlugin;
 
 module.exports = {
     entry: {
@@ -45,4 +50,21 @@ module.exports = {
             },
         ]
     },
+    plugins: [
+        new providePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.$': 'jquery',
+            'window.jQuery': 'jquery',
+            'window.jquery': 'jquery',
+            Tether: 'tether',
+            'window.Tether': 'tether',
+        }),
+        new commonsChunkPlugin({
+            name: 'common',
+            minChunks: 2
+        }),
+        new uglifyJsPlugin(),
+        new dedupePlugin()
+    ]
 };
