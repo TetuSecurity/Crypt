@@ -75,6 +75,7 @@
     "node-sass": "^4.2.0",
     "raw-loader": "^0.5.1",
     "sass-loader": "^5.0.1",
+    "source-map-loader": "^0.1.6",
     "tsify": "^1.0.9",
     "tslint": "^3.7.4",
     "typescript": "^2.1.6",

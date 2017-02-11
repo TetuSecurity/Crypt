@@ -3,7 +3,6 @@ var webpack = require('webpack');
 var commonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 var providePlugin = webpack.ProvidePlugin;
 var uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
-var dedupePlugin = webpack.optimize.DedupePlugin;
 
 module.exports = {
     entry: {
@@ -17,8 +16,19 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.js', '.json']
     },
+    devtool: 'inline-source-map',
     module: {
         rules: [
+            {
+                enforce: 'pre',
+                test: /\.js$/,
+                loader: "source-map-loader"
+            },
+            {
+                enforce: 'pre',
+                test: /\.ts$/,
+                use: "source-map-loader"
+            },
             {
                 test: /\.ts$/,
                 use: [
@@ -64,7 +74,6 @@ module.exports = {
             name: 'common',
             minChunks: 2
         }),
-        new uglifyJsPlugin(),
-        new dedupePlugin()
+        new uglifyJsPlugin()
     ]
 };
