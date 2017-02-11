@@ -1,0 +1,30 @@
+
+// Colors
+$black-artifact: #352f2f;
+$pharaoh-gold: #cc9934;
+$tetu-teal: #01cccc;
+$bright-dune: #fefbef;
+
+
+// Font Families
+$logo-font: 'PT Mono', 'Lucida Console', Monaco, monospace;
+$serif-font: 'PT Serif', Georgia, serif;
+$sans-font: 'PT Sans', 'Trebuchet MS', Helvetica, sans-serif;
+
+
+//responsive thresholds
+$absolute-min: 320px;
+
+$screen-xs-min: 0; 
+$screen-xs-max: 575px; 
+
+$screen-sm-min: $screen-xs-max + 1px; 
+$screen-sm-max: 767px;
+
+$screen-md-min: $screen-sm-max + 1px; 
+$screen-md-max: 991px;
+
+$screen-lg-min: $screen-md-max + 1px; 
+$screen-lg-max: 1199px;
+
+$screen-xl-min: $screen-md-max + 1px;

@@ -1,0 +1,28 @@
+<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
+        (click)="toggleArrow()" [ngClass]="{'menu': isMenu, 'arrow': !isMenu}"
+    >
+        <svg id="hamburger" width="32" height="32" viewBox="0 0 32 32">
+            <path id="top" d="M4 10h24c1.104 0 2-.896 2-2s-.896-2-2-2H4c-1.104 0-2 .896-2 2s.896 2 2 2z" />
+            <path id="middle" d="M28 14H4c-1.104 0-2 .896-2 2s.896 2 2 2h24c1.104 0 2-.896 2-2s-.896-2-2-2z" />
+            <path id="bottom" d="M28 22H4c-1.104 0-2 .896-2 2s.896 2 2 2h24c1.104 0 2-.896 2-2s-.896-2-2-2z" />
+        </svg>
+    </button>
+    <a [routerLink]="['/']">
+        <img src="/assets/img/crypt.svg" alt="Crypt" class="navbar-brand logo" />
+    </a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" [routerLink]="['/']">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" [routerLink]="['/auth/login']">Login</a>
+            </li>
+        </ul>
+    </div>
+</nav>

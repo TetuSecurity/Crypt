@@ -1,0 +1,16 @@
+@import '~bootstrap/scss/bootstrap';
+@import '~font-awesome/scss/font-awesome';
+@import './scss/_variables';
+@import './scss/type';
+
+html, body {
+    min-width: $absolute-min;
+}
+
+p, a, span, th, td, dl, dd {
+    font-family: $serif-font;
+}
+
+h1, h2, h3, h4, h5, h6  {
+    font-family: $sans-font;
+}

@@ -1,68 +1,96 @@
-var gulp        = require('gulp');
-var uncss       = require('gulp-uncss');
-var uglify      = require('gulp-uglify');
-var nano        = require('gulp-cssnano');
-var usemin      = require('gulp-usemin');
-var tsc         = require('gulp-typescript');
-var typings     = require('gulp-typings');
-var install     = require('gulp-install');
+const gulp        	= require('gulp');
+const fs          	= require('fs');
+const path			= require('path');
+const sass          = require('node-sass');
+const webpack       = require('webpack');
+const webpackConfig = require('./webpack.config');
+const browserSync   = require('browser-sync-webpack-plugin');
+const ts_project	= require('gulp-typescript').createProject('./src/server/tsconfig.json');
 
-gulp.task('tscompile', function(){
-  var tsProject = tsc.createProject('src/client/tsconfig.json', {
-    "target": "es3",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-  });
-  return tsProject.src().pipe(tsc(tsProject)).js.pipe(gulp.dest('dist/client/app'));
+function sassNodeModulesImporter(url, file, done){
+    // if it starts with a tilde, search in node_modules;
+    if (url.indexOf('~') === 0){
+        var nmPath = path.join(__dirname, 'node_modules', url.substring(1)||'');
+        return done({ file: nmPath });
+    } else {
+        return done({ file: url });
+    }
+}
+
+gulp.task('compile_node', function(){
+	return gulp.src('./src/server/**/*.ts')
+	.pipe(ts_project()).js
+	.pipe(gulp.dest('dist/server/'));
 });
 
-gulp.task('usemin', function(){
-  return gulp.src('src/client/index.html')
-    .pipe(usemin({
-        js: [uglify(), 'concat'],
-        css: [uncss({html:['src/client/index.html', 'src/client/templates/*.html'], ignore:[]}), nano(), 'concat']
-      })
-    )
-    .pipe(gulp.dest('dist/client'));
+gulp.task('copy_client_root', ['copy_client_assets'], function(done){
+    gulp.src('src/client/index.html')
+    .pipe(gulp.dest('dist/client/'));
+
+    sass.render({
+        file: 'src/client/styles.scss',
+        outputStyle: 'compressed',
+        importer: sassNodeModulesImporter
+    }, function(err, result){
+        if(err){
+            throw err;
+        }
+        fs.writeFileSync('dist/client/styles.min.css', result.css);
+        return done();
+    });
 });
 
-gulp.task('copy_templates', function(){
-  return gulp.src(['src/client/templates/*.html'])
-      .pipe(gulp.dest('dist/client/templates'));
+gulp.task('copy_client_assets', function(){
+  return gulp.src(['src/client/assets/**/*'])
+      .pipe(gulp.dest('dist/client/assets'));
 });
 
-gulp.task('copy_client_root', function(){
-  return gulp.src(['src/client/favicon.ico', 'src/client/index.html', 'src/client/package.json', 'src/client/typings.json', 'src/client/systemjs.config.js'])
-      .pipe(gulp.dest('dist/client/'));
+gulp.task('copy_fonts', ['copy_client_assets'], function(){
+  return gulp.src(['node_modules/font-awesome/fonts/*', 'src/client/fonts/*'])
+      .pipe(gulp.dest('dist/client/fonts'));
 });
 
-gulp.task('copy_node', function(){
-  return gulp.src(['src/**/*', '!src/client/**/*', './package.json', '!./node_modules', '!./config.json'])
-      .pipe(gulp.dest('dist/'));
+gulp.task('webpack', function(done) {
+    let config = webpackConfig;
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin()
+    );
+    return webpack(config, function(err){
+        if (err) {
+            console.log(err);
+        }
+        return done(err);
+    });
 });
 
-gulp.task('install_api', ['copy_node'], function(){
-  return gulp.src('dist/package.json')
-    .pipe(install({production:true, ignoreScripts:true}));
+gulp.task('webpack-watch', function() {
+    let config = webpackConfig;
+    config.watch = true;
+    config.cache = true;
+    config.bail = false;
+    config.plugins.push(
+        new browserSync({
+            host: 'localhost',
+            port: 3001,
+            proxy: 'localhost:3000'
+        })
+    );
+    webpack(config, function(err, stats) {
+        if (err) {
+            console.log(err);
+        }
+    });
 });
 
-gulp.task('install_client', ['copy_client_root'], function(){
-  return gulp.src('dist/client/package.json')
-    .pipe(install({production:true, ignoreScripts:true}));
-});
+gulp.task('copy', ['copy_client_root', 'copy_client_assets', 'copy_fonts']);
 
-gulp.task('install_client_typings', ['copy_client_root', 'install_client'], function(){
-  return gulp.src('dist/client/typings.json')
-    .pipe(typings());
-});
-
-gulp.task('watch', function(){
-  console.log('watching for ts changes...');
-  return gulp.watch(['src/client/src/**/*.ts', 'src/client/**/*.html'], ['tscompile', 'copy_client_root', 'copy_templates']);
+gulp.task('watch', ['copy', 'compile_node', 'webpack-watch'], function(){
+  	console.log('watching for changes...');
+	gulp.watch(['src/client/assets/**/*'], ['copy_client_assets']);
+	gulp.watch(['src/client/index.html', 'src/client/styles.scss', 'src/client/scss/*.scss'], ['copy_client_root']);
+	gulp.watch(['node_modules/font-awesome/fonts/*', 'src/client/fonts/*'], ['copy_fonts']);
+	gulp.watch(['src/server/**/*.ts'], ['compile_node']);
 });
 
 // Default Task
-gulp.task('default', ['copy_node', 'copy_client_root', 'copy_templates', 'tscompile', 'install_api', 'install_client', 'install_client_typings']);
+gulp.task('default', ['copy', 'compile_node', 'webpack']);

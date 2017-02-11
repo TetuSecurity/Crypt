@@ -3,15 +3,12 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": true,
     "noImplicitAny": false,
-    "outDir": "../../build/client",
-    "typeRoots": [
-      "../../node_modules/@types"
-    ]
+    "outDir": "../../dist/server"
   },
   "compileOnSave": false
 }

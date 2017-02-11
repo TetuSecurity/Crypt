@@ -1,0 +1,67 @@
+@keyframes topright{
+    0% { transform: rotate(0deg) scale(1,1); transform-origin: 16px 16px;}
+    100% { transform: rotate(45deg) scale(0.7, 1); transform-origin: 16px 16px;}
+}
+@keyframes bottomleft{
+    0% { transform: rotate(0deg) scale(1,1); transform-origin: 16px 16px;}
+    100% { transform: rotate(135deg) scale(0.7, 1); transform-origin: 16px 16px;}
+}
+@keyframes middle{
+    0%  {transform: rotate(0deg) translateY(0); transform-origin: 16px 17px;}
+    100% {transform: rotate(90deg) translateY(1px); transform-origin: 16px 17px;}
+}
+@keyframes topright2{
+    0% { transform: rotate(45deg) scale(0.7, 1); transform-origin: 16px 16px;}
+    100% { transform: rotate(180deg) scale(1,1); transform-origin: 16px 16px;}
+}
+@keyframes bottomleft2{
+    0% { transform: rotate(135deg) scale(0.7, 1); transform-origin: 16px 16px;}
+    100% { transform: rotate(180deg) scale(1,1); transform-origin: 16px 16px;}
+}
+@keyframes middle2{
+    0% {transform: rotate(90deg) translateY(1px); transform-origin: 16px 17px;}
+    100%  {transform: rotate(180deg) translateY(0); transform-origin: 16px 16px;}
+}
+
+.arrow {
+    #top{
+        animation: topright 0.3s linear 0s forwards;
+    }
+    
+    #middle{
+        animation: middle 0.3s linear 0s forwards;
+    }
+
+    #bottom{
+        animation: bottomleft 0.3s linear 0s forwards;
+    }
+}
+
+.menu {
+    #top{
+        animation: topright2 0.3s linear 0s forwards;
+    }
+
+    #middle {
+        animation: middle2 0.3s linear 0s forwards;
+    }
+
+    #bottom {
+        animation: bottomleft2 0.3s linear 0s forwards;
+    }
+}
+
+
+.hamburger-button, .hamburger-button:active, .hamburger-button:focus, .hamburger-button:hover{
+    height: 42px;
+    padding: 0;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    border: 0;
+    background-color: transparent;
+}
+
+img.logo {
+    padding: 0 30px;
+    height: 40px;
+}

@@ -31,7 +31,11 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
-config.json
-src/client/lib/
+
+# app stuff
 dist/
-src/client/typings/
+faviconData.json
+.env
+.oldCode
+.vscode/
+
