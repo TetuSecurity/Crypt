@@ -2,7 +2,6 @@ import {Observable} from 'rxjs/Rx';
 import {INode, File, Directory} from '../../models/files';
 import {Http} from '@angular/http';
 import {Injectable} from '@angular/core';
-import 'rxjs/add/operator/map';
 
 @Injectable()
 export class FilesService {
@@ -10,8 +9,7 @@ export class FilesService {
 
     constructor(
         private _http: Http
-    ) {
-    }
+    ) {}
 
     getFiles(parentDirId?: number): Observable<INode[]> {
         let url = this.BASE_URL;

@@ -2,12 +2,12 @@ var path = require('path');
 var webpack = require('webpack');
 var commonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 var providePlugin = webpack.ProvidePlugin;
-var uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 
 module.exports = {
     entry: {
         'app': './src/client/main.ts',
-        'vendor': './src/client/vendor.ts'
+        'vendor': './src/client/vendor.ts',
+        
     },
     output: {
         filename: '[name].min.js',
@@ -16,18 +16,18 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.js', '.json']
     },
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     module: {
         rules: [
             {
                 enforce: 'pre',
                 test: /\.js$/,
-                loader: "source-map-loader"
+                loader: 'source-map-loader'
             },
             {
                 enforce: 'pre',
                 test: /\.ts$/,
-                use: "source-map-loader"
+                use: 'source-map-loader'
             },
             {
                 test: /\.ts$/,
@@ -52,7 +52,17 @@ module.exports = {
             {
                 test: /\.scss$/,
                 exclude: /node_modules/,
-                loaders: ['raw-loader', 'sass-loader']
+                use: [
+                    {
+                        loader: 'raw-loader'
+                    }, 
+                    {
+                        loader:'sass-loader',
+                        options: {
+                            outputStyle: 'compressed'
+                        }
+                    }
+                ]
             },
             { 
                 test: /\.(html|css)$/, 
@@ -73,7 +83,6 @@ module.exports = {
         new commonsChunkPlugin({
             name: 'common',
             minChunks: 2
-        }),
-        new uglifyJsPlugin()
+        })
     ]
 };

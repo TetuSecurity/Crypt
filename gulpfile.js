@@ -1,15 +1,11 @@
 const gulp        	= require('gulp');
-const install     	= require('gulp-install');
-const ts 			= require('gulp-typescript');
-const buffer      	= require('vinyl-buffer');
 const fs          	= require('fs');
 const path			= require('path');
 const sass          = require('node-sass');
-const minify        = require('minify');
-const client_tsc	= require('./src/client/tsconfig.json').compilerOptions;
-const server_tsc	= require('./src/server/tsconfig.json').compilerOptions;
-const ts_project	= ts.createProject('./src/server/tsconfig.json');
 const webpack       = require('webpack');
+const webpackConfig = require('./webpack.config');
+const browserSync   = require('browser-sync-webpack-plugin');
+const ts_project	= require('gulp-typescript').createProject('./src/server/tsconfig.json');
 
 function sassNodeModulesImporter(url, file, done){
     // if it starts with a tilde, search in node_modules;
@@ -21,21 +17,16 @@ function sassNodeModulesImporter(url, file, done){
     }
 }
 
-gulp.task('compile_node', ['install'], function(){
+gulp.task('compile_node', function(){
 	return gulp.src('./src/server/**/*.ts')
 	.pipe(ts_project()).js
 	.pipe(gulp.dest('dist/server/'));
 });
 
-gulp.task('copy_client_root', ['copy_client_assets', 'install'], function(done){
-    gulp.src(
-        [
-            'src/client/index.html', 
-            'node_modules/jquery/dist/jquery.min.js',
-            'node_modules/tether/dist/js/tether.min.js'
-        ]
-    )
+gulp.task('copy_client_root', ['copy_client_assets'], function(done){
+    gulp.src('src/client/index.html')
     .pipe(gulp.dest('dist/client/'));
+
     sass.render({
         file: 'src/client/styles.scss',
         outputStyle: 'compressed',
@@ -45,7 +36,7 @@ gulp.task('copy_client_root', ['copy_client_assets', 'install'], function(done){
             throw err;
         }
         fs.writeFileSync('dist/client/styles.min.css', result.css);
-        done();
+        return done();
     });
 });
 
@@ -54,26 +45,17 @@ gulp.task('copy_client_assets', function(){
       .pipe(gulp.dest('dist/client/assets'));
 });
 
-gulp.task('copy_fonts', ['install', 'copy_client_assets'], function(){
+gulp.task('copy_fonts', ['copy_client_assets'], function(){
   return gulp.src(['node_modules/font-awesome/fonts/*', 'src/client/fonts/*'])
       .pipe(gulp.dest('dist/client/fonts'));
 });
 
-gulp.task('install', function(){
-	return gulp.src('./package.json')
-    .pipe(install({ignoreScripts:true}));
-});
-
-gulp.task('copy', ['copy_client_root', 'copy_client_assets', 'copy_fonts']);
-
-gulp.task('watch', ['copy', 'install', 'compile_node'], function(){
-  	console.log('watching for changes...');
-	gulp.watch(['src/client/**/*'], ['copy']);
-  	return gulp.watch(['./package.json'], ['browserify']);
-});
-
-gulp.task('webpack', ['install'], function(done) {
-    return webpack(require('./webpack.config'), function(err){
+gulp.task('webpack', function(done) {
+    let config = webpackConfig;
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin()
+    );
+    return webpack(config, function(err){
         if (err) {
             console.log(err);
         }
@@ -81,5 +63,34 @@ gulp.task('webpack', ['install'], function(done) {
     });
 });
 
+gulp.task('webpack-watch', function() {
+    let config = webpackConfig;
+    config.watch = true;
+    config.cache = true;
+    config.bail = false;
+    config.plugins.push(
+        new browserSync({
+            host: 'localhost',
+            port: 3001,
+            proxy: 'localhost:3000'
+        })
+    );
+    webpack(config, function(err, stats) {
+        if (err) {
+            console.log(err);
+        }
+    });
+});
+
+gulp.task('copy', ['copy_client_root', 'copy_client_assets', 'copy_fonts']);
+
+gulp.task('watch', ['copy', 'compile_node', 'webpack-watch'], function(){
+  	console.log('watching for changes...');
+	gulp.watch(['src/client/assets/**/*'], ['copy_client_assets']);
+	gulp.watch(['src/client/index.html', 'src/client/styles.scss', 'src/client/scss/*.scss'], ['copy_client_root']);
+	gulp.watch(['node_modules/font-awesome/fonts/*', 'src/client/fonts/*'], ['copy_fonts']);
+	gulp.watch(['src/server/**/*.ts'], ['compile_node']);
+});
+
 // Default Task
-gulp.task('default', ['copy', 'install', 'compile_node', 'webpack']);
+gulp.task('default', ['copy', 'compile_node', 'webpack']);
